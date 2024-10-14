@@ -10,7 +10,7 @@ Siddhi Vilas Dube, ,
 Abdulla Fazil, ,
 Jesse Tessmer, ,
 Dustin Underwood, @moleodonuts, underw33@uwm.edu
-Sri Moulika Teykuri, ,
+Sri Moulika Yetukuri, @moulika006, yetukuri@uwm.edu
 
 ## Paper
 
@@ -78,7 +78,7 @@ Graphalytics Efficiency Testing
 ## Status
 
 #### 13/October/2024
-As of now, we have completed the design phase and identified the core components to implement. We have found a C++ implementation of Sortledton from [GitLab](https://gitlab.db.in.tum.de/per.fuchs/sortledton) that will serve as a reference, although we are focusing on the Java implementation. Unit and invariant testing will begin after the base implementation is complete
+As of now, we have completed the design phase and identified the core components to implement. We have found a C++ implementation of Sortledton from [GitLab](https://gitlab.db.in.tum.de/per.fuchs/sortledton) that will serve as a reference, although we are focusing on the Java implementation. Unit and invariant testing will begin after the base implementation is complete.
 
 
 
