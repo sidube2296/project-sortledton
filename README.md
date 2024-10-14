@@ -6,7 +6,7 @@ Java Sortledton
 
 ## People
 
-Siddhi Vilas Dube, ,
+Siddhi Vilas Dube,siddhi2218, svdube@uwm.edu,
 Abdulla Fazil, ,
 Jesse Tessmer, ,
 Dustin Underwood, @moleodonuts, underw33@uwm.edu
