@@ -17,13 +17,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SortledtonGraph<T> {
 
 	/** A map to store each vertex and its corresponding VertexRecord */
-	private final Map<T, VertexRecord<T>> adjacencyIndex;
-
+	//TODO Dustin: I removed this Map interface an replaced it with a 
+	//     field of VertexRecord, which is our adjacency index class.
+	//private final Map<T, VertexRecord<T>> adjacencyIndex;
+	private VertexRecord<T> adjacencyIndex;
+	
 	/**
 	 * Constructs a new SortledtonGraph with an empty adjacency index.
 	 */
 	public SortledtonGraph() {
-
+		adjacencyIndex = new VertexRecord<>();
 	}
 
 	/**
@@ -32,7 +35,9 @@ public class SortledtonGraph<T> {
 	 * @param id The vertex ID.
 	 * @return A list of IDs representing the neighbors of the specified vertex.
 	 */
-	public List<T> getNeighbors(T id) { /*...*/ }
+	public List<T> getNeighbors(T id) { 
+		return null;
+	}
 
 	/**
 	 * Inserts an edge between two vertices. Creates vertices if they don’t already exist.
@@ -71,7 +76,10 @@ public class SortledtonGraph<T> {
 	 * @param destId The destination vertex ID.
 	 * @return True if the edge exists, otherwise false.
 	 */
-	public boolean findEdge(T srcId, T destId) { /*...*/ }
+	public boolean findEdge(T srcId, T destId) { 
+		/*...*/ 
+		return true;
+	}
 
 	/**
 	 * Finds the intersection of neighbors between two vertices.
@@ -80,5 +88,8 @@ public class SortledtonGraph<T> {
 	 * @param v2Id The second vertex ID.
 	 * @return A list of IDs that represent the common neighbors.
 	 */
-	public List<T> intersectNeighbors(T v1Id, T v2Id) { /*...*/ }
+	public List<T> intersectNeighbors(T v1Id, T v2Id) {
+		/*...*/
+		return null;
+	}
 }

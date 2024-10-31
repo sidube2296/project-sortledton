@@ -18,7 +18,7 @@ public class PowerofTwo<T> implements Neighborhood<T>{
     /**
      * Constructs a new PowerOfTwoVector with an empty list of neighbors.
      */
-    public PowerOfTwoVector() {
+    public PowerofTwo() {
         this.neighbors = new ArrayList<>();
     }
 
@@ -41,7 +41,10 @@ public class PowerofTwo<T> implements Neighborhood<T>{
      *
      * @return A sorted list of neighbor IDs.
      */
-    public List<T> getNeighbors() { /*...*/ }
+    public List<T> getNeighbors() {
+    	/*...*/
+    	return null;
+    }
 
     /**
      * Finds the intersection between this neighborhood and another power-of-two vector.
@@ -49,5 +52,8 @@ public class PowerofTwo<T> implements Neighborhood<T>{
      * @param other The other PowerOfTwoVector to intersect with.
      * @return A list of IDs representing common neighbors.
      */
-    public List<T> intersect(Neighborhood<T> other) { /*...*/ }
+    public List<T> intersect(Neighborhood<T> other) {
+    	/*...*/ 
+    	return null;
+    }
 }

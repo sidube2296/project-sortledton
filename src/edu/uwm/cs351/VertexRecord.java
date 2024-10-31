@@ -1,5 +1,7 @@
 package edu.uwm.cs351;
 
+import java.util.List;
+
 /**
  * VertexRecord represents a vertex's neighborhood and manages access to
  * its neighborhood structure.
@@ -9,7 +11,7 @@ package edu.uwm.cs351;
 public class VertexRecord<T> {
 
 	/** The neighborhood data structure, implemented using either PowerOfTwoVector or UnrolledSkipList */
-    private final Neighborhood neighborhood;
+    private final Neighborhood<T> neighborhood;
 
     /** The size of the neighborhood */
     private final int neighborhoodSize;
@@ -21,7 +23,8 @@ public class VertexRecord<T> {
      * @param neighborhoodSize The initial size of the neighborhood.
      */
     public VertexRecord() {
-        
+        neighborhood = new PowerofTwo<>(); //TODO placeholder for later implementation
+        neighborhoodSize = 0; //TODO placeholder for later implementation
     }
 
     /**
@@ -29,7 +32,10 @@ public class VertexRecord<T> {
      *
      * @return A list of IDs representing the neighbors.
      */
-    public List<T> getNeighborhood() { /*...*/ }
+    public List<T> getNeighborhood() {
+    	/*...*/ 
+    	return null;
+    }
 
     /**
      * Adds a neighbor to this vertex’s neighborhood.

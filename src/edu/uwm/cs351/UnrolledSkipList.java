@@ -42,7 +42,10 @@ public class UnrolledSkipList<T> implements Neighborhood<T>{
      *
      * @return A list of IDs representing neighbors in sorted order.
      */
-    public List<T> getNeighbors() { /*...*/ }
+    public List<T> getNeighbors() {
+    	/*...*/
+    	return null;
+    }
 
     /**
      * Finds the intersection between this neighborhood and another unrolled skip list.
@@ -50,5 +53,8 @@ public class UnrolledSkipList<T> implements Neighborhood<T>{
      * @param other The other UnrolledSkipList to intersect with.
      * @return A list of IDs representing common neighbors.
      */
-    public List<T> intersect(Neighborhood<T> other) { /*...*/ }
+    public List<T> intersect(Neighborhood<T> other) {
+    	/*...*/
+    	return null;
+    }
 }
