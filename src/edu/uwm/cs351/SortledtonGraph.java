@@ -41,7 +41,16 @@ public class SortledtonGraph<T> {
 			index[i] = new VertexEntry();
 		}
 	}
-
+	
+	/**
+	 * Getter for vertex count
+	 * 
+	 * @return the total number of vertices in the graph
+	 */
+    public int getVertexCount() {
+        return vertexCount;
+    }
+    
 	/**
 	 * Retrieves the neighbors of the given vertex.
 	 *
@@ -76,7 +85,17 @@ public class SortledtonGraph<T> {
 		if (srcId == null || destId == null) throw new IllegalArgumentException("@deleteEdge, the parameters, srcID and destID may not be null.");
 		/*...*/ 
 	}
-
+	
+	/**
+	 * Checks if a vertex with a given logical ID exists in the graph.
+	 * 
+	 * @param v the logical ID of the vertex to check.
+	 * @return true if the vertex exists, otherwise: false.
+	 */
+	public boolean hasVertex(int v) {
+        return logicalToPhysical.containsKey(v);	//used containsKey( ) from the Map interface
+    }
+	
 	/**
 	 * Inserts a new vertex in the graph.
 	 *
