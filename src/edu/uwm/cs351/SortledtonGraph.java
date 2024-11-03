@@ -2,7 +2,7 @@ package edu.uwm.cs351;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
 /**
  * SortledtonGraph is the main class for managing the Sortledton graph data structure.
@@ -15,18 +15,25 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <T> The type of the vertex ID
  */
 public class SortledtonGraph<T> {
-
-	/** A map to store each vertex and its corresponding VertexRecord */
-	//TODO Dustin: I removed this Map interface an replaced it with a 
-	//     field of VertexRecord, which is our adjacency index class.
+	//Constants
+	private static final int INITIAL_VECTOR_SIZE = 128; //TODO update this later when we start to scale. Per Fuchs used 131072
+	
+	//Fields
+	private int vertexCount = 0;
+	private HashMap<Integer, Integer> logicalToPhysical = new HashMap<>(INITIAL_VECTOR_SIZE);	//"lp-index" from Figure 6
+	private VertexEntry[ ] index = new VertexEntry[INITIAL_VECTOR_SIZE]; 						//Adjacency Index. TODO Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
+	
+	// A map to store each vertex and its corresponding VertexRecord */
+	//TODO is this not needed?
 	//private final Map<T, VertexRecord<T>> adjacencyIndex;
-	private VertexRecord<T> adjacencyIndex;
 	
 	/**
 	 * Constructs a new SortledtonGraph with an empty adjacency index.
 	 */
 	public SortledtonGraph() {
-		adjacencyIndex = new VertexRecord<>();
+		for (int i = 0; i < INITIAL_VECTOR_SIZE; i++) {
+			index[i] = new VertexEntry();
+		}
 	}
 
 	/**
@@ -92,4 +99,30 @@ public class SortledtonGraph<T> {
 		/*...*/
 		return null;
 	}
+	
+	 /**
+     * An entry in the vertex index that stores information about a vertex.
+     */
+    private static class VertexEntry {
+        private int adjacencySet;
+        private int logicalId;
+        private int adjacencySetSize;
+
+        /**
+         * Initializes a new VertexEntry, with adjacency set size = zero.
+         */
+        public VertexEntry() {
+            adjacencySetSize = 0;
+        }
+
+        /**
+         * Gets the size of the adjacency set for this vertex.
+         *
+         * @return the size of the adjacency set
+         */
+        public int getAdjacencySetSize() {
+            return adjacencySetSize;
+        }
+
+    }
 }
