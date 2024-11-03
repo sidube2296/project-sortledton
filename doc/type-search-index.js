@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"edu.uwm.cs351","l":"Neighborhood"},{"p":"edu.uwm.cs351","l":"PowerofTwo"},{"p":"edu.uwm.cs351","l":"SortledtonGraph"},{"p":"edu.uwm.cs351","l":"UnrolledSkipList"},{"p":"edu.uwm.cs351","l":"VertexRecord"}];updateSearchResults();

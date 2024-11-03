@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+//Sources:
+//	Sortledton C++ implementation by Per Fuchs et al: https://gitlab.db.in.tum.de/per.fuchs/sortledton
+//		This was used as a guide for design decisions for our implementation of modified scope.
+
 /**
  * SortledtonGraph is the main class for managing the Sortledton graph data structure.
  * This graph structure supports efficient neighborhood access for both small and large
@@ -13,6 +17,8 @@ import java.util.HashMap;
  * neighborhoods, and finding intersections between neighborhoods.
  *
  * @param <T> The type of the vertex ID
+ * 
+ * TODO cite C++ implementation, which I've used to guide my work, starting 
  */
 public class SortledtonGraph<T> {
 	//Constants
@@ -21,7 +27,7 @@ public class SortledtonGraph<T> {
 	//Fields
 	private int vertexCount = 0;
 	private HashMap<Integer, Integer> logicalToPhysical = new HashMap<>(INITIAL_VECTOR_SIZE);	//"lp-index" from Figure 6
-	private VertexEntry[ ] index = new VertexEntry[INITIAL_VECTOR_SIZE]; 						//Adjacency Index. TODO Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
+	private VertexEntry[ ] index = new VertexEntry[INITIAL_VECTOR_SIZE]; 						//Adjacency Index. Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
 	
 	// A map to store each vertex and its corresponding VertexRecord */
 	//TODO is this not needed?
