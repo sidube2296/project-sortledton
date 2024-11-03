@@ -128,6 +128,32 @@ public class SortledtonGraph<T> {
 	}
 	
 	 /**
+     * Retrieves the physical ID corresponding to the given logical vertex ID.
+     *
+     * This method returns the physical ID of a vertex, if it exists, in the logical-to-physical mapping.
+     * If the vertex does not exist, this will return null.
+     *
+     * @param v The logical ID of the vertex.
+     * @return The physical ID of the vertex, or null if the vertex is not present.
+     */
+	public int physicalId(int v) {
+		return logicalToPhysical.get(v);
+	}
+	
+	/**
+     * Retrieves the logical ID corresponding to the given physical vertex ID.
+     *
+     * This method returns the logical ID of a vertex, if it exists, in the physical-to-logical mapping.
+     * If the vertex does not exist, this will return null.
+     *
+     * @param v The physical ID of the vertex.
+     * @return The logical ID of the vertex, or null if the vertex is not present.
+     */
+	public int logicalId(int v) {
+		return index[v].getLogicalId();
+	}
+	
+	 /**
      * An entry in the vertex index that stores information about a vertex.
      */
     private static class VertexEntry {
@@ -150,6 +176,15 @@ public class SortledtonGraph<T> {
          */
         public int getAdjacencySetSize() {
             return adjacencySetSize;
+        }
+        
+        /**
+         * Gets the logical ID associated with this vertex.
+         *
+         * @return the logical ID of the vertex
+         */
+        public int getLogicalId() {
+            return logicalId;
         }
 
     }
