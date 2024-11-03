@@ -2,6 +2,7 @@ package edu.uwm.cs351;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.HashMap;
 
 /**
@@ -33,6 +34,24 @@ public class SortledtonGraph<T> {
 	//TODO is this not needed?
 	//private final Map<T, VertexRecord<T>> adjacencyIndex;
 	
+	private static Consumer<String> reporter = (s) -> System.out.println("Invariant error: "+ s);
+	
+	private boolean report(String error) {
+		reporter.accept(error);
+		return false;
+	}
+
+	/**
+	 * Checks that the SortledtonGraph invariant is correctly adhered to.
+	 * 
+	 * @return true when in compliance with all listed invariants
+	 */
+	private boolean wellFormed() {
+		//TODO
+		return true;
+	}
+	
+	
 	/**
 	 * Constructs a new SortledtonGraph with an empty adjacency index.
 	 */
@@ -40,6 +59,7 @@ public class SortledtonGraph<T> {
 		for (int i = 0; i < INITIAL_VECTOR_SIZE; i++) {
 			index[i] = new VertexEntry();
 		}
+		assert wellFormed() : "invariant failed at end of SortledtonGraph constructor";
 	}
 	
 	/**
@@ -71,7 +91,9 @@ public class SortledtonGraph<T> {
 	 */
 	public void insertEdge(T srcId, T destId) { 
 		if (srcId == null || destId == null) throw new IllegalArgumentException("@insertEdge, the parameters, srcID and destID may not be null.");
+		assert wellFormed() : "invariant failed at start of insertEdge";
 		/*...*/ 
+		assert wellFormed() : "invariant failed at end of insertEdge";
 	}
 
 	/**
@@ -83,7 +105,9 @@ public class SortledtonGraph<T> {
 	 */
 	public void deleteEdge(T srcId, T destId) { 
 		if (srcId == null || destId == null) throw new IllegalArgumentException("@deleteEdge, the parameters, srcID and destID may not be null.");
+		assert wellFormed() : "invariant failed at start of deleteEdge";
 		/*...*/ 
+		assert wellFormed() : "invariant failed at end of deleteEdge";
 	}
 	
 	/**
@@ -106,7 +130,9 @@ public class SortledtonGraph<T> {
 	public void insertVertex(T id) { 
 		if (id == null) throw new IllegalArgumentException("@insertVertex, the parameter, id, may not be null.");
 		//TODO add check for an extant vertex and throw ISE
+		assert wellFormed() : "invariant failed at start of insertVertex.";
 		/*...*/ 
+		assert wellFormed() : "invariant failed at end of insertVertex.";
 	}
 
 	/**
@@ -117,7 +143,9 @@ public class SortledtonGraph<T> {
 	 */
 	public void deleteVertex(T id) {
 		if (id == null) throw new IllegalArgumentException("@insertVertex, the parameter, id, may not be null.");
+		assert wellFormed() : "invariant failed at start of deleteVertex.";
 		/*...*/ 
+		assert wellFormed() : "invariant failed at end of deleteVertex."; 
 	}
 
 	/**
@@ -180,12 +208,23 @@ public class SortledtonGraph<T> {
         private int logicalId;
         private int adjacencySetSize;
 
+    	/**
+    	 * Checks that the VertexEntry invariant is correctly adhered to.
+    	 * 
+    	 * @return true when in compliance with all listed invariants
+    	 */
+    	private boolean wellFormed() {
+    		//TODO
+    		return true;
+    	}
+        
         /**
          * Initializes a new VertexEntry, with adjacency set size set to zero.
          * The adjacency set represents the number of neighbors connected to this vertex.
          */
         public VertexEntry() {
             adjacencySetSize = 0;
+    		assert wellFormed() : "invariant failed at end of VertexEntry constructor.";
         }
 
         /**
@@ -205,6 +244,16 @@ public class SortledtonGraph<T> {
         public int getLogicalId() {
             return logicalId;
         }
-
+        
+        /**
+         * Setter for the logical ID for this vertex.
+         *
+         * @param logicalId the logical ID to set
+         */
+        public void setLogicalId(int logicalId) {
+    		assert wellFormed() : "invariant failed at start of setLogicalId.";
+    		this.logicalId = logicalId; 
+    		assert wellFormed() : "invariant failed at end of setLogicalId."; 
+        }
     }
 }
