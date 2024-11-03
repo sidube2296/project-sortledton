@@ -204,9 +204,9 @@ public class SortledtonGraph<T> {
      * An entry in the vertex index that stores information about a vertex.
      */
     private static class VertexEntry {
-        private int adjacencySet;
-        private int logicalId;
-        private int adjacencySetSize;
+        public int adjacencySet;
+        public int logicalId;
+        public int adjacencySetSize;
 
     	/**
     	 * Checks that the VertexEntry invariant is correctly adhered to.
@@ -256,4 +256,104 @@ public class SortledtonGraph<T> {
     		assert wellFormed() : "invariant failed at end of setLogicalId."; 
         }
     }
+    
+    
+    public static class Spy {
+        /**
+         * Return the sink for invariant error messages.
+         * @return current reporter.
+         */
+        public Consumer<String> getReporter() {
+            return reporter;
+        }
+
+        /**
+         * Change the sink for invariant error messages.
+         * @param r where to send invariant error messages.
+         */
+        public void setReporter(Consumer<String> r) {
+            reporter = r;
+        }
+
+        /**
+         * A public version of the data structure's internal VertexEntry class.
+         * This class is only used for testing.
+         */
+        public static class VertexEntry extends SortledtonGraph.VertexEntry {
+            // Even if Eclipse suggests it: do not add any fields to this class!
+
+            /**
+             * Create a VertexEntry with default values.
+             */
+            public VertexEntry() {
+                super();
+            }
+
+            /**
+             * Create a VertexEntry with the given values.
+             * @param logicalId logical ID for the vertex.
+             * @param adjacencySet adjacency set value.
+             * @param adjacencySetSize size of the adjacency set.
+             */
+            public VertexEntry(int logicalId, int adjacencySet, int adjacencySetSize) {
+                super();
+                this.logicalId = logicalId;
+                this.adjacencySet = adjacencySet;
+                this.adjacencySetSize = adjacencySetSize;
+            }
+
+            /**
+             * Change the logical ID in the VertexEntry.
+             * @param logicalId new logical ID.
+             */
+            public void setLogicalId(int logicalId) {
+                this.logicalId = logicalId;
+            }
+
+            /**
+             * Change the adjacencySet in the VertexEntry.
+             * @param adjacencySet new adjacencySet value.
+             */
+            public void setAdjacencySet(int adjacencySet) {
+                this.adjacencySet = adjacencySet;
+            }
+
+            /**
+             * Change the adjacencySetSize in the VertexEntry.
+             * @param adjacencySetSize new adjacencySetSize value.
+             */
+            public void setAdjacencySetSize(int adjacencySetSize) {
+                this.adjacencySetSize = adjacencySetSize;
+            }
+        }
+
+        /**
+         * Create a debugging instance of the SortledtonGraph with a particular data structure.
+         * @param vertexCount the vertex count.
+         * @param logicalToPhysical the logicalToPhysical map.
+         * @param index the index array.
+         * @return a new instance of a SortledtonGraph with the given data structure.
+         */
+        public <U> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Integer> logicalToPhysical, VertexEntry[] index) {
+            SortledtonGraph<U> result = new SortledtonGraph<>();
+            result.vertexCount = vertexCount;
+            result.logicalToPhysical = new HashMap<>(logicalToPhysical);
+            // Clone the index array and assign it to the result.
+            result.index = new SortledtonGraph.VertexEntry[index.length];
+            for (int i = 0; i < index.length; i++) {
+                result.index[i] = index[i];
+            }
+            return result;
+        }
+
+        /**
+         * Return whether the debugging instance meets the requirements on the invariant.
+         * @param sg instance of SortledtonGraph to use, must not be null.
+         * @return whether it passes the check.
+         */
+        public boolean wellFormed(SortledtonGraph<?> sg) {
+            return sg.wellFormed();
+        }
+    }
+
 }
