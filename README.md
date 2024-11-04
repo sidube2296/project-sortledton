@@ -5,12 +5,14 @@
 Java Sortledton
 
 ## People
+<ul>
+<li>Siddhi Vilas Dube,siddhi2218, svdube@uwm.edu,</li>
+<li>Abdulla Fazil, @abdullafazil, lnu28@uwm.edu</li>
+<li>Jesse Tessmer, ,</li>
+<li>Dustin Underwood, @moleodonuts, underw33@uwm.edu</li>
+<li>Sri Moulika Yetukuri, @moulika006, yetukuri@uwm.edu</li>
+</ul>
 
-Siddhi Vilas Dube,siddhi2218, svdube@uwm.edu,
-Abdulla Fazil, @abdullafazil, lnu28@uwm.edu
-Jesse Tessmer, ,
-Dustin Underwood, @moleodonuts, underw33@uwm.edu
-Sri Moulika Yetukuri, @moulika006, yetukuri@uwm.edu
 
 ## Paper
 
@@ -50,13 +52,13 @@ In our implementation, built in Java, we rely on automatic memory management via
 ### Main classes
 
 - SortledtonGraph: The core class representing the graph. It will manage the adjacency list using the adjacency index map (Map&lt;ID, Set<ID&gt;).
-- NeighborhoodSet: This class will handle small neighborhoods using headless power-of-two-sized vectors and large neighborhoods using unrolled skip lists. It will dynamically switch between the two based on neighborhood size.
-- Edge: A class representing edges between vertices. It will manage edge properties (e.g., weight, direction).
+- Neighborhood: This class will handle small neighborhoods using headless power-of-two-sized vectors and large neighborhoods using unrolled skip lists. It will dynamically switch between the two based on neighborhood size.
+- PowerOfTwo: a class representing small neighborhood sets, employing a dynamic array with power-of-two growth
+- UnrolledSkipList: a class representing large neighborhoods, employing an "unrolled skip list" data structure, which is a variation of a skip list where each node holds a small array of multiple elements.
 
 ### Helper classes
 
-- Vertex: A class representing a vertex in the graph, which stores vertex-specific information such as the vertex ID and a reference to its neighborhood.
-- ConcurrentSkipListSetHelper: A helper class that wraps and customizes ConcurrentSkipListSet&lt;E&gt; for large neighborhoods to behave as unrolled skip lists.
+- VertexEntry: A class representing a vertex in the graph, which stores vertex-specific information such as the vertex ID and a reference to its neighborhood. It is stored within the inext of the SortledtonGraph class.
 
 ### Test Suites
 
@@ -80,7 +82,8 @@ Graphalytics Efficiency Testing
 #### 13/October/2024
 As of now, we have completed the design phase and identified the core components to implement. We have found a C++ implementation of Sortledton from [GitLab](https://gitlab.db.in.tum.de/per.fuchs/sortledton) that will serve as a reference, although we are focusing on the Java implementation. Unit and invariant testing will begin after the base implementation is complete.
 
-
-
-
-
+#### 3/November/2024
+- Further design work was completed to communicate the direction of the project from our latest understanding.
+- The main classes have been created with stub methods to clear any compilation errors: Neighborhood, PowerofTwo, UnrolledSkipList, and SortledtonGraph.
+- SortledtonGraph has been populated with the getter and setter methods that we currently anticipate needing, a first version of wellFormed( ), a first implementation of the Spy section with a reporter, and the VertexEntry private nested subclass.
+- Detailed research into the process to implement Graphalytics has begun - with particular attention to design requirements to ease use of Graphalytics later in the project.
