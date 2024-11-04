@@ -48,6 +48,49 @@ public class SortledtonGraph<T> {
 	 */
 	private boolean wellFormed() {
 		//TODO
+		if (logicalToPhysical == null || index == null) {
+	        reporter.accept("Data structures for graph must not be null.");
+	        return false;
+	    }
+
+	    // Check that logicalToPhysical has valid mappings within the index array bounds
+	    for (Map.Entry<Integer, Integer> entry : logicalToPhysical.entrySet()) {
+	        int logicalID = entry.getKey();
+	        int physicalIndex = entry.getValue();
+	        if (physicalIndex < 0 || physicalIndex >= index.length) {
+	            reporter.accept("Physical index out of bounds for logical ID " + logicalID);
+	            return false;
+	        }
+
+	        VertexEntry ve = index[physicalIndex];
+	        if (ve == null) {
+	            reporter.accept("VertexEntry at physical index " + physicalIndex + " is null.");
+	            return false;
+	        }
+
+	        if (ve.logicalId != logicalID) {
+	            reporter.accept("Logical ID mismatch at physical index " + physicalIndex);
+	            return false;
+	        }
+	    }
+
+	    // Check all entries in the index array
+	    for (int i = 0; i < index.length; i++) {
+	        VertexEntry ve = index[i];
+	        if (ve != null) {
+	            if (ve.adjacencySetSize < 0) {
+	                reporter.accept("Negative adjacency set size at index " + i);
+	                return false;
+	            }
+	        }
+	    }
+
+	    // Check that vertex count matches the number of entries in logicalToPhysical
+	    if (vertexCount != logicalToPhysical.size()) {
+	        reporter.accept("Vertex count does not match the number of entries in logicalToPhysical.");
+	        return false;
+	    }
+		//Passes all the checks
 		return true;
 	}
 	
