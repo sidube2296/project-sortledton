@@ -1,6 +1,7 @@
 package edu.uwm.cs351;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -10,65 +11,91 @@ import java.util.List;
  *
  * @param <T> The type of the vertex ID
  */
-public class PowerofTwo<T> implements Neighborhood<T>{
+public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
 
-	/** The list to store neighbors, kept sorted */
-	private final List<T> neighbors;
+    /** The list to store neighbors, kept sorted */
+    private final List<T> neighbors;
 
-	/**
-	 * Constructs a new PowerOfTwoVector with an empty list of neighbors.
-	 */
-	public PowerofTwo() {
-		this.neighbors = new ArrayList<>();
-	}
-	
-	/**
-	 * Returns the current number of neighbors in the neighborhood.
-	 *
-	 * @return The number of neighbors in the neighborhood.
-	 */
-	public Object size() {
-		return neighbors.size();
-	}
+    /**
+     * Constructs a new PowerOfTwoVector with an empty list of neighbors.
+     */
+    public PowerofTwo() {
+        this.neighbors = new ArrayList<>();
+    }
+    
+    /**
+     * Returns the number of neighbors in the neighborhood.
+     *
+     * @return The size of the neighborhood.
+     */
+    public int size() {
+        return neighbors.size();
+    }
 
-	/**
-	 * Adds a neighbor (edge) to the neighborhood, keeping the vector sorted.
-	 * If the neighborhood's current capacity is insufficient, it resizes
-	 * to the next power of two.
-	 *
-	 * @param id The ID of the neighbor to add.
-	 * @throws IllegalArgumentException if the neighbor ID is {@code null}
-	 */
-	public void addNeighbor(T id) { /*...*/ }
+    /**
+     * Adds a neighbor to the neighborhood, keeping the vector sorted.
+     *
+     * @param id The ID of the neighbor to add.
+     */
+    @Override
+    public void addNeighbor(T id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Element cannot be null");
+        }
+        int index = Collections.binarySearch(neighbors, id);
+        if (index < 0) {
+            neighbors.add(-index - 1, id); // Insert while maintaining sorted order
+        }
+    }
 
-	/**
-	 * Removes a specified neighbor from the neighborhood, if it exists.
-	 *
-	 * @param id The ID of the neighbor to remove.
-	 * @throws IllegalArgumentException if the neighbor ID is {@code null}
-	 */
-	public void removeNeighbor(T id) { /*...*/ }
+    /**
+     * Removes a neighbor from the neighborhood if it exists.
+     *
+     * @param id The ID of the neighbor to remove.
+     */
+    @Override
+    public void removeNeighbor(T id) {
+        int index = Collections.binarySearch(neighbors, id);
+        if (index >= 0) {
+            neighbors.remove(index);
+        }
+    }
 
-	/**
-	 * Retrieves all neighbors in the neighborhood.
-	 *
-	 * @return A sorted list of neighbor IDs.
-	 */
-	public List<T> getNeighbors() {
-		/*...*/
-		return null;
-	}
+    /**
+     * Retrieves all neighbors in the neighborhood.
+     *
+     * @return A sorted list of neighbor IDs.
+     */
+    @Override
+    public List<T> getNeighbors() {
+        return new ArrayList<>(neighbors); // Return a copy to prevent modification
+    }
 
-	/**
-	 * Finds the intersection between this neighborhood and another Neighborhood.
-	 * Returns a sorted list of shared neighbor IDs.
-	 *
-	 * @param other The other Neighborhood to intersect with.
-	 * @return A list of IDs representing common neighbors.
-	 * @throws IllegalArgumentException if the other neighborhood is {@code null}
-	 */
-	public List<T> intersect(Neighborhood<T> other) {
-		/*...*/ 
-		return null;
-	}
+    /**
+     * Finds the intersection between this neighborhood and another power-of-two vector.
+     *
+     * @param other The other Neighborhood to intersect with.
+     * @return A list of IDs representing common neighbors.
+     */
+    @Override
+    public List<T> intersect(Neighborhood<T> other) {
+        List<T> intersection = new ArrayList<>();
+        List<T> otherNeighbors = other.getNeighbors();
+        int i = 0, j = 0;
+        while (i < neighbors.size() && j < otherNeighbors.size()) {
+            T a = neighbors.get(i);
+            T b = otherNeighbors.get(j);
+            int comparison = a.compareTo(b);
+            if (comparison == 0) {
+                intersection.add(a);
+                i++;
+                j++;
+            } else if (comparison < 0) {
+                i++;
+            } else {
+                j++;
+            }
+        }
+        return intersection;
+    }
 }
