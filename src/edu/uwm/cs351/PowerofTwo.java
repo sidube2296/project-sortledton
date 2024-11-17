@@ -21,6 +21,15 @@ public class PowerofTwo<T> implements Neighborhood<T>{
 	public PowerofTwo() {
 		this.neighbors = new ArrayList<>();
 	}
+	
+	/**
+	 * Returns the current number of neighbors in the neighborhood.
+	 *
+	 * @return The number of neighbors in the neighborhood.
+	 */
+	public Object size() {
+		return neighbors.size();
+	}
 
 	/**
 	 * Adds a neighbor (edge) to the neighborhood, keeping the vector sorted.
@@ -60,16 +69,6 @@ public class PowerofTwo<T> implements Neighborhood<T>{
 	 */
 	public List<T> intersect(Neighborhood<T> other) {
 		/*...*/ 
-		return null;
-	}
-
-	/**
-	 * Returns the current number of neighbors in the neighborhood.
-	 *
-	 * @return The number of neighbors in the neighborhood.
-	 */
-	public Object size() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
