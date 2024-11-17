@@ -377,7 +377,7 @@ public class SortledtonGraph<T> {
          * @param index the index array.
          * @return a new instance of a SortledtonGraph with the given data structure.
          */
-        public <U> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Integer> logicalToPhysical, VertexEntry[] index) {
+        public static <U> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Integer> logicalToPhysical, VertexEntry[] index) {
             SortledtonGraph<U> result = new SortledtonGraph<>();
             result.vertexCount = vertexCount;
             result.logicalToPhysical = new HashMap<>(logicalToPhysical);
@@ -394,7 +394,7 @@ public class SortledtonGraph<T> {
          * @param sg instance of SortledtonGraph to use, must not be null.
          * @return whether it passes the check.
          */
-        public boolean wellFormed(SortledtonGraph<?> sg) {
+        public static boolean wellFormed(SortledtonGraph<?> sg) {
             return sg.wellFormed();
         }
     }
