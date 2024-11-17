@@ -13,47 +13,63 @@ import java.util.List;
 public class PowerofTwo<T> implements Neighborhood<T>{
 
 	/** The list to store neighbors, kept sorted */
-    private final List<T> neighbors;
+	private final List<T> neighbors;
 
-    /**
-     * Constructs a new PowerOfTwoVector with an empty list of neighbors.
-     */
-    public PowerofTwo() {
-        this.neighbors = new ArrayList<>();
-    }
+	/**
+	 * Constructs a new PowerOfTwoVector with an empty list of neighbors.
+	 */
+	public PowerofTwo() {
+		this.neighbors = new ArrayList<>();
+	}
 
-    /**
-     * Adds a neighbor to the neighborhood, keeping the vector sorted.
-     *
-     * @param id The ID of the neighbor to add.
-     */
-    public void addNeighbor(T id) { /*...*/ }
+	/**
+	 * Adds a neighbor (edge) to the neighborhood, keeping the vector sorted.
+	 * If the neighborhood's current capacity is insufficient, it resizes
+	 * to the next power of two.
+	 *
+	 * @param id The ID of the neighbor to add.
+	 * @throws IllegalArgumentException if the neighbor ID is {@code null}
+	 */
+	public void addNeighbor(T id) { /*...*/ }
 
-    /**
-     * Removes a neighbor from the neighborhood if it exists.
-     *
-     * @param id The ID of the neighbor to remove.
-     */
-    public void removeNeighbor(T id) { /*...*/ }
+	/**
+	 * Removes a specified neighbor from the neighborhood, if it exists.
+	 *
+	 * @param id The ID of the neighbor to remove.
+	 * @throws IllegalArgumentException if the neighbor ID is {@code null}
+	 */
+	public void removeNeighbor(T id) { /*...*/ }
 
-    /**
-     * Retrieves all neighbors in the neighborhood.
-     *
-     * @return A sorted list of neighbor IDs.
-     */
-    public List<T> getNeighbors() {
-    	/*...*/
-    	return null;
-    }
+	/**
+	 * Retrieves all neighbors in the neighborhood.
+	 *
+	 * @return A sorted list of neighbor IDs.
+	 */
+	public List<T> getNeighbors() {
+		/*...*/
+		return null;
+	}
 
-    /**
-     * Finds the intersection between this neighborhood and another power-of-two vector.
-     *
-     * @param other The other PowerOfTwoVector to intersect with.
-     * @return A list of IDs representing common neighbors.
-     */
-    public List<T> intersect(Neighborhood<T> other) {
-    	/*...*/ 
-    	return null;
-    }
+	/**
+	 * Finds the intersection between this neighborhood and another Neighborhood.
+	 * Returns a sorted list of shared neighbor IDs.
+	 *
+	 * @param other The other Neighborhood to intersect with.
+	 * @return A list of IDs representing common neighbors.
+	 * @throws IllegalArgumentException if the other neighborhood is {@code null}
+	 */
+	public List<T> intersect(Neighborhood<T> other) {
+		/*...*/ 
+		return null;
+	}
+
+	/**
+	 * Returns the current number of neighbors in the neighborhood.
+	 *
+	 * @return The number of neighbors in the neighborhood.
+	 */
+	public Object size() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
