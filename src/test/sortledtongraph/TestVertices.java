@@ -10,7 +10,7 @@ public class TestVertices {
     // ========== Tests of deleteVertex() ==========
 
     @Test
-    public void testDeleteVertex() {
+    public void testDeleteVertex01() {
         SortledtonGraph<Integer> sortledtonGraph = new SortledtonGraph<Integer>();
 
         int result = sortledtonGraph.getVertexCount();
