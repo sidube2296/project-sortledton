@@ -1,5 +1,5 @@
 package edu.uwm.cs351;
-
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -28,7 +28,13 @@ public class UnrolledSkipList<T> implements Neighborhood<T>{
      *
      * @param id The ID of the neighbor to add.
      */
-    public void addNeighbor(T id) { /*...*/ }
+    public void addNeighbor(T id) {
+    	
+    	 if (id == null) {
+             throw new IllegalArgumentException("Neighbor ID cannot be null");
+         }
+         blocks.add(id);
+    }
 
     /**
      * Removes a neighbor from the neighborhood, updating the block structure as necessary.
@@ -43,8 +49,7 @@ public class UnrolledSkipList<T> implements Neighborhood<T>{
      * @return A list of IDs representing neighbors in sorted order.
      */
     public List<T> getNeighbors() {
-    	/*...*/
-    	return null;
+    	return new ArrayList<>(blocks);
     }
 
     /**
