@@ -88,3 +88,9 @@ As of now, we have completed the design phase and identified the core components
 - SortledtonGraph has been populated with the getter and setter methods that we currently anticipate needing, a first version of wellFormed( ), a first implementation of the Spy section with a reporter, and the VertexEntry private nested subclass.
 - Detailed research into the process to implement Graphalytics has begun - with particular attention to design requirements to ease use of Graphalytics later in the project.
 - Roadblocks: We are finding the unit tests to be harder to implement than expected. So, the first of these are delayed to the next milestone. Also, the original authors' implementation is far more complex than we would have expected from the paper (if number of classes is any indication). The nature of this complexity and whether it is material is still unclear. So far, we are just building the basic armature for the data structure, so the progress on coding has been steady.
+
+#### 17/November/2024
+- All classes that have been identified as required were started and first unit tests were created and passed. 
+- Basic implementation of Neighborhood interface and 2 classes which implement it: PowerofTwo and UnrolledSkipList
+- Implemented basic unit test cases for most methods of SortledtonGraph, UnrolledSkipList, and PowerofTwo
+- Roadblocks: During this period, we were finding the process was a major holdup. We spent significant periods of time learning how to use GitHub and troubleshooting issues since we need to go beyond the features that we have used in the class. So far, the complexity of the author's implementation has not become necessary for the scope of our project - though we are mindful that this may present a concern in the future as we begin to implement more complex behavior into the project. 
