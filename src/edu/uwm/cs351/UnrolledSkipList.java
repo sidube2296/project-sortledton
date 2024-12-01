@@ -1,6 +1,6 @@
 package edu.uwm.cs351;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -11,9 +11,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
  *
  * @param <T> The type of the vertex ID
  */
-public class UnrolledSkipList<T> implements Neighborhood<T>{
-	
-	/** Stores blocks of edges for efficient neighborhood scans and intersections */
+public class UnrolledSkipList<T extends Comparable<T>> implements Neighborhood<T> {
+    /** Stores blocks of edges for efficient neighborhood scans and intersections */
     private final ConcurrentSkipListSet<T> blocks;
 
     /**
@@ -29,11 +28,10 @@ public class UnrolledSkipList<T> implements Neighborhood<T>{
      * @param id The ID of the neighbor to add.
      */
     public void addNeighbor(T id) {
-    	
-    	 if (id == null) {
-             throw new IllegalArgumentException("Neighbor ID cannot be null");
-         }
-         blocks.add(id);
+        if (id == null) {
+            throw new IllegalArgumentException("Neighbor ID cannot be null");
+        }
+        blocks.add(id);
     }
 
     /**
@@ -41,7 +39,12 @@ public class UnrolledSkipList<T> implements Neighborhood<T>{
      *
      * @param id The ID of the neighbor to remove.
      */
-    public void removeNeighbor(T id) { /*...*/ }
+    public void removeNeighbor(T id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Neighbor ID cannot be null");
+        }
+        blocks.remove(id);
+    }
 
     /**
      * Retrieves all neighbors in the neighborhood.
@@ -49,7 +52,7 @@ public class UnrolledSkipList<T> implements Neighborhood<T>{
      * @return A list of IDs representing neighbors in sorted order.
      */
     public List<T> getNeighbors() {
-    	return new ArrayList<>(blocks);
+        return new ArrayList<>(blocks);
     }
 
     /**
@@ -59,7 +62,16 @@ public class UnrolledSkipList<T> implements Neighborhood<T>{
      * @return A list of IDs representing common neighbors.
      */
     public List<T> intersect(Neighborhood<T> other) {
-    	/*...*/
-    	return null;
+        if (other == null) {
+            throw new IllegalArgumentException("Other neighborhood cannot be null");
+        }
+
+        List<T> result = new ArrayList<>();
+        for (T neighbor : blocks) {
+            if (other.getNeighbors().contains(neighbor)) {
+                result.add(neighbor);
+            }
+        }
+        return result;
     }
 }
