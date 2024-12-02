@@ -97,7 +97,8 @@ As of now, we have completed the design phase and identified the core components
 - Roadblocks: During this period, we were finding the process was a major holdup. We spent significant periods of time learning how to use GitHub and troubleshooting issues since we need to go beyond the features that we have used in the class. So far, the complexity of the author's implementation has not become necessary for the scope of our project - though we are mindful that this may present a concern in the future as we begin to implement more complex behavior into the project. 
 
 #### 1/December/2024
-- Uncommited Change: WIP - Moved lp-index (logicaltoPhyiscal) to a HashMap<Integer, Neighborhood<T>> data type to help directly reference the neighborhood objects in memory. Needs test cases to be rewritten (as needed) and rerun.
+- Uncommited Change: Open PR - Moved lp-index (logicaltoPhyiscal) to a HashMap<Integer, Neighborhood<T>> data type to help directly reference the neighborhood objects in memory. Needs test cases to be rewritten (as needed) and rerun.
+- Uncommited Change: Open PR - Add implementation for various SortledtonGraph methods: getNeighors, insertEdge, insertVertex, etc.
 - Uncommited Change: WIP - Moved VertexEntry from a nested class to a new top level class. Updated SortledtonGraph accordingly. This is aimed at clearing issues with generic types and more readily instantiate an array of VertexEntry[] for use as the adjacency index. Has remaining compile issues with Spy. Needs tests to be rewritten and rerun.
 - Extensive test cases for the PowerofTwo and SortledtonGraph classes, covering functionality, edge cases, and invariants. Key updates include:
 - PowerofTwo Tests: Added tests for duplicate neighbors, removing neighbors, intersections (empty, partial, full overlap), and sorted order maintenance.
