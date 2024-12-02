@@ -237,7 +237,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
      * @param v The logical ID of the vertex.
      * @return The physical ID of the vertex, or null if the vertex is not present.
      */
-	public int physicalId(int v) {
+	public Neighborhood<T> physicalId(int v) {
 		return logicalToPhysical.get(v);
 	}
 	
