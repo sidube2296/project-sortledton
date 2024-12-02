@@ -24,8 +24,6 @@ public class TestPowerofTwo extends TestCase {
 		vector.addNeighbor("B");
 		vector.addNeighbor("C");
 		assertEquals(3, vector.size());
-		//TODO correct syntax
-		//assertTrue(vector.getNeighbors().containsAll(List.of("A", "B", "C")));
 	}
 
 	// Test method for resizing
@@ -74,4 +72,94 @@ public class TestPowerofTwo extends TestCase {
 		vector.removeNeighbor("C");
 		assertEquals(0, vector.size());
 	}
+	
+	public void testAddNeighborDuplicateElement() {
+	    vector.addNeighbor("A");
+	    vector.addNeighbor("A");
+	    assertEquals(1, vector.size());
+	    assertTrue(vector.getNeighbors().contains("A"));
+	}
+	
+	public void testRemoveNeighborFromEmpty() {
+	    vector.removeNeighbor("A");
+	    assertEquals(0, vector.size());
+	}
+
+	public void testIntersectEmptyNeighborhoods() {
+	    PowerofTwo<String> otherVector = new PowerofTwo<>();
+	    List<String> intersection = vector.intersect(otherVector);
+	    assertTrue(intersection.isEmpty());
+	}
+	
+	public void testIntersectNoCommonElements() {
+	    vector.addNeighbor("A");
+	    vector.addNeighbor("B");
+	    PowerofTwo<String> otherVector = new PowerofTwo<>();
+	    otherVector.addNeighbor("C");
+	    otherVector.addNeighbor("D");
+	    List<String> intersection = vector.intersect(otherVector);
+	    assertTrue(intersection.isEmpty());
+	}
+	
+	public void testIntersectSomeCommonElements() {
+	    vector.addNeighbor("A");
+	    vector.addNeighbor("B");
+	    vector.addNeighbor("C");
+	    PowerofTwo<String> otherVector = new PowerofTwo<>();
+	    otherVector.addNeighbor("B");
+	    otherVector.addNeighbor("C");
+	    otherVector.addNeighbor("D");
+	    List<String> intersection = vector.intersect(otherVector);
+	    assertEquals(2, intersection.size());
+	    assertTrue(intersection.contains("B"));
+	    assertTrue(intersection.contains("C"));
+	}
+	
+	public void testIntersectAllCommonElements() {
+	    vector.addNeighbor("A");
+	    vector.addNeighbor("B");
+	    vector.addNeighbor("C");
+	    PowerofTwo<String> otherVector = new PowerofTwo<>();
+	    otherVector.addNeighbor("A");
+	    otherVector.addNeighbor("B");
+	    otherVector.addNeighbor("C");
+	    List<String> intersection = vector.intersect(otherVector);
+	    assertEquals(3, intersection.size());
+	}
+
+	public void testRemoveNeighborSortedOrder() {
+	    vector.addNeighbor("C");
+	    vector.addNeighbor("A");
+	    vector.addNeighbor("B");
+	    vector.removeNeighbor("B");
+	    assertEquals(2, vector.size());
+	    assertFalse(vector.getNeighbors().contains("B"));
+	}
+	
+	public void testAddAndRemoveRepeatedly() {
+	    vector.addNeighbor("A");
+	    vector.removeNeighbor("A");
+	    vector.addNeighbor("B");
+	    vector.addNeighbor("C");
+	    vector.removeNeighbor("B");
+	    vector.addNeighbor("D");
+	    assertEquals(2, vector.size());
+	}
+
+
+	public void testIntersectPartiallyOverlappingRanges() {
+	    for (int i = 0; i < 10; i++) {
+	        vector.addNeighbor("Element" + i);
+	    }
+	    PowerofTwo<String> otherVector = new PowerofTwo<>();
+	    for (int i = 5; i < 15; i++) {
+	        otherVector.addNeighbor("Element" + i);
+	    }
+	    List<String> intersection = vector.intersect(otherVector);
+	    assertEquals(5, intersection.size());
+	    for (int i = 5; i < 10; i++) {
+	        assertTrue(intersection.contains("Element" + i));
+	    }
+	}
+
 }
