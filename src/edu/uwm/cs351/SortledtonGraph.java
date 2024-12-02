@@ -3,6 +3,7 @@ package edu.uwm.cs351;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -21,14 +22,15 @@ import java.util.HashMap;
  *
  * @param <T> The type of the vertex ID
  */
-public class SortledtonGraph<T> {
+public class SortledtonGraph<T extends Comparable<T>> {
 	//Constants
 	private static final int INITIAL_VECTOR_SIZE = 128; //TODO update this later when we start to scale. Per Fuchs used 131072
 	
 	//Fields
 	private int vertexCount = 0;
-	private HashMap<Integer, Integer> logicalToPhysical = new HashMap<>(INITIAL_VECTOR_SIZE);	//"lp-index" from Figure 6
-	private VertexEntry[ ] index = new VertexEntry[INITIAL_VECTOR_SIZE]; 						//Adjacency Index. Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
+	private HashMap<Integer, Neighborhood<T>> logicalToPhysical = new HashMap<>(INITIAL_VECTOR_SIZE);	//"lp-index" from Figure 6
+	@SuppressWarnings("unchecked")
+	private VertexEntry[] index = new VertexEntry[INITIAL_VECTOR_SIZE]; //Eclipse gives an error, but this should be a safe cast.						//Adjacency Index. Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
 	
 	// A map to store each vertex and its corresponding VertexRecord */
 	//TODO is this not needed?
@@ -54,8 +56,8 @@ public class SortledtonGraph<T> {
 	    }
 
 	    // Check that logicalToPhysical has valid mappings within the index array bounds
-	    for (Map.Entry<Integer, Integer> entry : logicalToPhysical.entrySet()) {
-	        int logicalID = entry.getKey();
+	    for (Map.Entry<T, Integer> entry : logicalToPhysical.entrySet()) {
+	        int logicalID = entry.getKey(); //TODO sort this out. The Map should be <T, Integer> or vice versa? If not change, change VertexEntry to suit
 	        int physicalIndex = entry.getValue();
 	        if (physicalIndex < 0 || physicalIndex >= index.length) {
 	            reporter.accept("Physical index out of bounds for logical ID " + logicalID);
@@ -117,12 +119,25 @@ public class SortledtonGraph<T> {
 	/**
 	 * Retrieves the neighbors of the given vertex.
 	 *
-	 * @param id The vertex ID for which to retrieve neighbors.
+	 * @param vertexId The vertex ID for which to retrieve neighbors.
 	 * @return 	A list of IDs representing the neighbors of the specified vertex,
 	 * 			or an empty list if the vertex has no neighbors or does not exist.
+	 * @throws IllegalArgumentException if the vertex ID is null.
 	 */
-	public List<T> getNeighbors(T id) { 
-		return null;
+	public List<T> getNeighbors(T vertexId) {
+		if (vertexId == null) {
+			throw new IllegalArgumentException("Vertex ID cannot be null.");
+		}
+
+		// Retrieve the physical index corresponding to the logical vertex ID
+		Integer physicalId = logicalToPhysical.get(vertexId); // TODO Assuming vertexId.hashCode() maps to logicalId
+		if (physicalId == null) {
+			return new ArrayList<T>(); // Vertex does not exist, return an empty list
+		}
+
+		// Access the VertexEntry and retrieve its neighborhood
+		VertexEntry entry = index[physicalId];
+		return entry.adjacencySet.getNeighbors();
 	}
 
 	/**
@@ -172,9 +187,10 @@ public class SortledtonGraph<T> {
 	 */
 	public void insertVertex(T id) { 
 		if (id == null) throw new IllegalArgumentException("@insertVertex, the parameter, id, may not be null.");
-		//TODO add check for an extant vertex and throw ISE
+		if (logicalToPhysical.containsKey(id.hashCode())) throw new IllegalStateException("Vertex already exits: " + id);
 		assert wellFormed() : "invariant failed at start of insertVertex.";
-		/*...*/ 
+		logicalToPhysical.put(id.hashCode(), new PowerofTwo<>());
+	    vertexCount++;
 		assert wellFormed() : "invariant failed at end of insertVertex.";
 	}
 
@@ -246,8 +262,8 @@ public class SortledtonGraph<T> {
 	 /**
      * An entry in the vertex index that stores information about a vertex.
      */
-    private static class VertexEntry {
-        public int adjacencySet;
+    private class VertexEntry {
+        public Neighborhood<T> adjacencySet;
         public int logicalId;
         public int adjacencySetSize;
 
@@ -267,6 +283,7 @@ public class SortledtonGraph<T> {
          */
         public VertexEntry() {
             adjacencySetSize = 0;
+            adjacencySet = new PowerofTwo<T>(); // Default to PowerofTwo for small neighborhoods
     		assert wellFormed() : "invariant failed at end of VertexEntry constructor.";
         }
 
