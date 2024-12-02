@@ -2,6 +2,7 @@ package edu.uwm.cs351;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,45 +50,43 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 * @return true when in compliance with all listed invariants
 	 */
 	private boolean wellFormed() {
-		//TODO
+		//1. the lp-index and pl index must not be null
 		if (logicalToPhysical == null || index == null) {
 	        reporter.accept("Data structures for graph must not be null.");
 	        return false;
 	    }
+		
+		//2. the neighborhood for each used hashCode key must not be null
+		for (Entry<Integer, Neighborhood<T>> entry : logicalToPhysical.entrySet()) {
+			Integer logicalID = entry.getKey();
+			Neighborhood<T> neighborhood = entry.getValue();
 
-	    // Check that logicalToPhysical has valid mappings within the index array bounds
-	    for (Map.Entry<T, Integer> entry : logicalToPhysical.entrySet()) {
-	        int logicalID = entry.getKey(); //TODO sort this out. The Map should be <T, Integer> or vice versa? If not change, change VertexEntry to suit
-	        int physicalIndex = entry.getValue();
-	        if (physicalIndex < 0 || physicalIndex >= index.length) {
-	            reporter.accept("Physical index out of bounds for logical ID " + logicalID);
-	            return false;
-	        }
+			if (neighborhood == null) {
+				reporter.accept("Neighborhood is null for logical ID: " + logicalID);
+				return false;
+			}
+		}
+		
+		//Check all entries in the index array 
+		for (int i = 0; i < index.length; i++) {
+			VertexEntry ve = index[i];
+			if (ve != null) {
+				
+				//3. Check that adjacency set size is non-negative
+				if (ve.adjacencySetSize < 0) {
+					reporter.accept("Negative adjacency set size at index " + i);
+					return false;
+				}
 
-	        VertexEntry ve = index[physicalIndex];
-	        if (ve == null) {
-	            reporter.accept("VertexEntry at physical index " + physicalIndex + " is null.");
-	            return false;
-	        }
+				//4. Verify the ID mapping is consistent with the lp-index
+				if (!logicalToPhysical.containsKey(ve.logicalId)) {
+					reporter.accept("Logical ID " + ve.logicalId + " in VertexEntry is not in logicalToPhysical.");
+					return false;
+				}
+			}
+		}			
 
-	        if (ve.logicalId != logicalID) {
-	            reporter.accept("Logical ID mismatch at physical index " + physicalIndex);
-	            return false;
-	        }
-	    }
-
-	    // Check all entries in the index array
-	    for (int i = 0; i < index.length; i++) {
-	        VertexEntry ve = index[i];
-	        if (ve != null) {
-	            if (ve.adjacencySetSize < 0) {
-	                reporter.accept("Negative adjacency set size at index " + i);
-	                return false;
-	            }
-	        }
-	    }
-
-	    // Check that vertex count matches the number of entries in logicalToPhysical
+	    //5. Check that vertex count matches the number of entries in logicalToPhysical
 	    if (vertexCount != logicalToPhysical.size()) {
 	        reporter.accept("Vertex count does not match the number of entries in logicalToPhysical.");
 	        return false;
