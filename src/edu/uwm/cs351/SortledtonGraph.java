@@ -30,8 +30,8 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	//Fields
 	private int vertexCount = 0;
 	private HashMap<Integer, Neighborhood<T>> logicalToPhysical = new HashMap<>(INITIAL_VECTOR_SIZE);	//"lp-index" from Figure 6
-	@SuppressWarnings("unchecked")
-	private VertexEntry[] index = new VertexEntry[INITIAL_VECTOR_SIZE]; //Eclipse gives an error, but this should be a safe cast.						//Adjacency Index. Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
+	@SuppressWarnings("unchecked")											//Eclipse gives an error, but this should be a safe cast.
+	private VertexEntry[] index = new VertexEntry[INITIAL_VECTOR_SIZE]; 	//Adjacency Index. Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
 	
 	// A map to store each vertex and its corresponding VertexRecord */
 	//TODO is this not needed?
@@ -257,9 +257,10 @@ public class SortledtonGraph<T extends Comparable<T>> {
      * An entry in the vertex index that stores information about a vertex.
      */
     private class VertexEntry {
-        public Neighborhood<T> adjacencySet;
-        public int logicalId;
-        public int adjacencySetSize;
+    	//See figure 6 of the paper: and individual element of the Adjacency Index
+        public Neighborhood<T> adjacencySet;	//pointer to the Neighborhood object (PowerofTwo or UnrolledSkipList)
+        public int logicalId;					//the hash code for the vertex
+        public int adjacencySetSize;			//Number of neighbors in the adjacency set
 
     	/**
     	 * Checks that the VertexEntry invariant is correctly adhered to.
@@ -267,7 +268,15 @@ public class SortledtonGraph<T extends Comparable<T>> {
     	 * @return true when in compliance with all listed invariants
     	 */
     	private boolean wellFormed() {
-    		//TODO
+    		//1. logicalID must be greater than or equal to 0
+    		
+    		if (logicalId < 0) return report("logicalID cannot be negative.");
+    		//2. the adjacencySet must be properly initialized (non null)
+    		if (adjacencySet == null) return report("the adjacency set must be initialized (non-null)");
+    		
+    		//3. the adjacency set size must not be negative.
+    		if (adjacencySetSize < 0) return report("the adjacency set's size must be non-negative");
+    		
     		return true;
     	}
         
@@ -279,6 +288,16 @@ public class SortledtonGraph<T extends Comparable<T>> {
             adjacencySetSize = 0;
             adjacencySet = new PowerofTwo<T>(); // Default to PowerofTwo for small neighborhoods
     		assert wellFormed() : "invariant failed at end of VertexEntry constructor.";
+        }
+        
+        /**
+         * Constructor for VertexEntry with specified values for the fields
+         */
+        public VertexEntry(int logicalId, Neighborhood<T> adjacencySet) {
+            this.logicalId = logicalId;
+            this.adjacencySet = adjacencySet;
+            this.adjacencySetSize = adjacencySet.getNeighbors().size();
+            assert wellFormed() : "invariant failed at end of VertexEntry constructor.";
         }
 
         /**
@@ -349,7 +368,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
              * @param adjacencySet adjacency set value.
              * @param adjacencySetSize size of the adjacency set.
              */
-            public VertexEntry(int logicalId, int adjacencySet, int adjacencySetSize) {
+            public VertexEntry(int logicalId, Neighborhood<T> adjacencySet, int adjacencySetSize) {
                 super();
                 this.logicalId = logicalId;
                 this.adjacencySet = adjacencySet;
@@ -409,5 +428,5 @@ public class SortledtonGraph<T extends Comparable<T>> {
             return sg.wellFormed();
         }
     }
-
+	
 }
