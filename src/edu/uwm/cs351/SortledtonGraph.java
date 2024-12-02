@@ -182,7 +182,14 @@ public class SortledtonGraph<T extends Comparable<T>> {
 		if (logicalToPhysical.containsKey(id.hashCode())) throw new IllegalStateException("Vertex already exits: " + id);
 		assert wellFormed() : "invariant failed at start of insertVertex.";
 		
-		logicalToPhysical.put(id.hashCode(), new PowerofTwo<>());
+		// place the new Vertex in the lp-index
+		Neighborhood<T> neighborhood = new PowerofTwo<>();
+		logicalToPhysical.put(id.hashCode(), neighborhood);
+		
+		// populate the adjacency index
+		VertexEntry entry = new VertexEntry(id.hashCode(), neighborhood);
+	    index[vertexCount] = entry; 	// Using vertexCount as the next (logical) index
+		
 	    vertexCount++;
 		
 	    assert wellFormed() : "invariant failed at end of insertVertex.";
