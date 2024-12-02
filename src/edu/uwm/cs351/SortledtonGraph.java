@@ -125,19 +125,11 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 * @throws IllegalArgumentException if the vertex ID is null.
 	 */
 	public List<T> getNeighbors(T vertexId) {
-		if (vertexId == null) {
-			throw new IllegalArgumentException("Vertex ID cannot be null.");
+		Neighborhood<T> neighborhood = logicalToPhysical.get(vertexId.hashCode());
+		if (neighborhood == null) {
+			throw new IllegalArgumentException("Vertex does not exist: " + vertexId);
 		}
-
-		// Retrieve the physical index corresponding to the logical vertex ID
-		Integer physicalId = logicalToPhysical.get(vertexId); // TODO Assuming vertexId.hashCode() maps to logicalId
-		if (physicalId == null) {
-			return new ArrayList<T>(); // Vertex does not exist, return an empty list
-		}
-
-		// Access the VertexEntry and retrieve its neighborhood
-		VertexEntry entry = index[physicalId];
-		return entry.adjacencySet.getNeighbors();
+		return neighborhood.getNeighbors();
 	}
 
 	/**
@@ -150,7 +142,8 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	public void insertEdge(T srcId, T destId) { 
 		if (srcId == null || destId == null) throw new IllegalArgumentException("@insertEdge, the parameters, srcID and destID may not be null.");
 		assert wellFormed() : "invariant failed at start of insertEdge";
-		/*...*/ 
+		logicalToPhysical.computeIfAbsent(srcId.hashCode(), k -> new PowerofTwo<>()).addNeighbor(destId);
+	    logicalToPhysical.computeIfAbsent(destId.hashCode(), k -> new PowerofTwo<>()).addNeighbor(srcId);
 		assert wellFormed() : "invariant failed at end of insertEdge";
 	}
 
@@ -189,9 +182,11 @@ public class SortledtonGraph<T extends Comparable<T>> {
 		if (id == null) throw new IllegalArgumentException("@insertVertex, the parameter, id, may not be null.");
 		if (logicalToPhysical.containsKey(id.hashCode())) throw new IllegalStateException("Vertex already exits: " + id);
 		assert wellFormed() : "invariant failed at start of insertVertex.";
+		
 		logicalToPhysical.put(id.hashCode(), new PowerofTwo<>());
 	    vertexCount++;
-		assert wellFormed() : "invariant failed at end of insertVertex.";
+		
+	    assert wellFormed() : "invariant failed at end of insertVertex.";
 	}
 
 	/**
