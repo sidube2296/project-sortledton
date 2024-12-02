@@ -52,6 +52,7 @@ In our implementation, built in Java, we rely on automatic memory management via
 ### Main classes
 
 - SortledtonGraph: The core class representing the graph. It will manage the adjacency list using the adjacency index map (Map&lt;ID, Set<ID&gt;).
+- VertexEntry: an object representing an entry in the adjacency index, includes the reference to the neighborhood object, logicalID, and size of the neighborhood.
 - Neighborhood: This class will handle small neighborhoods using headless power-of-two-sized vectors and large neighborhoods using unrolled skip lists. It will dynamically switch between the two based on neighborhood size.
 - PowerOfTwo: a class representing small neighborhood sets, employing a dynamic array with power-of-two growth
 - UnrolledSkipList: a class representing large neighborhoods, employing an "unrolled skip list" data structure, which is a variation of a skip list where each node holds a small array of multiple elements.
@@ -94,3 +95,11 @@ As of now, we have completed the design phase and identified the core components
 - Basic implementation of Neighborhood interface and 2 classes which implement it: PowerofTwo and UnrolledSkipList
 - Implemented basic unit test cases for most methods of SortledtonGraph, UnrolledSkipList, and PowerofTwo
 - Roadblocks: During this period, we were finding the process was a major holdup. We spent significant periods of time learning how to use GitHub and troubleshooting issues since we need to go beyond the features that we have used in the class. So far, the complexity of the author's implementation has not become necessary for the scope of our project - though we are mindful that this may present a concern in the future as we begin to implement more complex behavior into the project. 
+
+#### 1/December/2024
+- Uncommited Change: WIP - Moved lp-index (logicaltoPhyiscal) to a HashMap<Integer, Neighborhood<T>> data type to help directly reference the neighborhood objects in memory. Needs test cases to be rewritten (as needed) and rerun.
+- Uncommited Change: WIP - Moved VertexEntry from a nested class to a new top level class. Updated SortledtonGraph accordingly. This is aimed at clearing issues with generic types and more readily instantiate an array of VertexEntry[] for use as the adjacency index. Has remaining compile issues with Spy. Needs tests to be rewritten and rerun.
+- Extensive test cases for the PowerofTwo and SortledtonGraph classes, covering functionality, edge cases, and invariants. Key updates include:
+- PowerofTwo Tests: Added tests for duplicate neighbors, removing neighbors, intersections (empty, partial, full overlap), and sorted order maintenance.
+- SortledtonGraph Tests: Enhanced tests for well-formedness, vertex/edge operations, exception handling (duplicates, non-existent elements), and graph consistency.
+Improved assertions, exception validation, and edge case handling across all tests.
