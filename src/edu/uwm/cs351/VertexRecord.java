@@ -3,10 +3,10 @@ package edu.uwm.cs351;
 import java.util.function.Consumer;
 
 /**
- * An entry in the vertex index that stores information about a vertex.
+ * A record in the Vertex Index that stores information about a vertex.
  */
-public class VertexEntry<T extends Comparable<T>> {
-	// See figure 6 of the paper: and individual element of the Adjacency Index
+public class VertexRecord<T extends Comparable<T>> {
+	// See figure 6 of the paper: and individual record of the Adjacency Index
 	public Neighborhood<T> adjacencySet; // pointer to the Neighborhood object (PowerofTwo or UnrolledSkipList)
 	public int logicalId; // the hash code for the vertex
 	public int adjacencySetSize; // Number of neighbors in the adjacency set
@@ -19,7 +19,7 @@ public class VertexEntry<T extends Comparable<T>> {
 	}
 
 	/**
-	 * Checks that the VertexEntry invariant is correctly adhered to.
+	 * Checks that the VertexRecord invariant is correctly adhered to.
 	 * 
 	 * @return true when in compliance with all listed invariants
 	 */
@@ -40,23 +40,24 @@ public class VertexEntry<T extends Comparable<T>> {
 	}
 
 	/**
-	 * Initializes a new VertexEntry, with adjacency set size set to zero. The
+	 * Initializes a new VertexRecord, with adjacency set size set to zero. The
 	 * adjacency set represents the number of neighbors connected to this vertex.
 	 */
-	public VertexEntry() {
+	public VertexRecord() {
 		adjacencySetSize = 0;
 		adjacencySet = new PowerofTwo<T>(); // Default to PowerofTwo for small neighborhoods
-		assert wellFormed() : "invariant failed at end of VertexEntry constructor.";
+		//TODO determine how to set the logical ID
+		assert wellFormed() : "invariant failed at end of VertexRecord constructor.";
 	}
 
 	/**
-	 * Constructor for VertexEntry with specified values for the fields
+	 * Constructor for VertexRecord with specified values for the fields
 	 */
-	public VertexEntry(int logicalId, Neighborhood<T> adjacencySet) {
-		this.logicalId = logicalId;
+	public VertexRecord(int logicalId, Neighborhood<T> adjacencySet) {
+		this.logicalId = logicalId; //TODO Does this make sense? Would we know the logicalId in advance of calling the constructor?
 		this.adjacencySet = adjacencySet;
 		this.adjacencySetSize = adjacencySet.getNeighbors().size();
-		assert wellFormed() : "invariant failed at end of VertexEntry constructor.";
+		assert wellFormed() : "invariant failed at end of VertexRecord constructor.";
 	}
 
 	/**
@@ -104,20 +105,20 @@ public class VertexEntry<T extends Comparable<T>> {
 	 * public void setReporter(Consumer<String> r) { reporter = r; }
 	 * 
 	 *//**
-		 * Create a VertexEntry with the given values.
+		 * Create a VertexRecord with the given values.
 		 * 
 		 * @param logicalId        logical ID for the vertex.
 		 * @param adjacencySet     adjacency set value.
 		 * @param adjacencySetSize size of the adjacency set.
 		 */
 	/*
-	 * public VertexEntry newInstance(int logicalId, Neighborhood<T> adjacencySet,
+	 * public VertexRecord newInstance(int logicalId, Neighborhood<T> adjacencySet,
 	 * int adjacencySetSize) { super(); this.logicalId = logicalId;
 	 * this.adjacencySet = adjacencySet; this.adjacencySetSize = adjacencySetSize; }
 	 * 
 	 * 
 	 *//**
-		 * Change the logical ID in the VertexEntry.
+		 * Change the logical ID in the VertexRecord.
 		 * 
 		 * @param logicalId new logical ID.
 		 */
@@ -125,7 +126,7 @@ public class VertexEntry<T extends Comparable<T>> {
 	 * public void setLogicalId(int logicalId) { this.logicalId = logicalId; }
 	 * 
 	 *//**
-		 * Change the adjacencySet in the VertexEntry.
+		 * Change the adjacencySet in the VertexRecord.
 		 * 
 		 * @param adjacencySet new adjacencySet value.
 		 */
@@ -134,7 +135,7 @@ public class VertexEntry<T extends Comparable<T>> {
 	 * //this.adjacencySet = adjacencySet; }
 	 * 
 	 *//**
-		 * Change the adjacencySetSize in the VertexEntry.
+		 * Change the adjacencySetSize in the VertexRecord.
 		 * 
 		 * @param adjacencySetSize new adjacencySetSize value.
 		 *//*

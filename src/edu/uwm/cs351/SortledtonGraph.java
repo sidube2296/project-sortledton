@@ -30,7 +30,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	//Fields
 	private int vertexCount = 0;
 	private HashMap<Integer, Neighborhood<T>> logicalToPhysical = new HashMap<>(INITIAL_VECTOR_SIZE);	//"lp-index" from Figure 6
-	private VertexEntry<T>[] index;		//Adjacency Index. Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
+	private VertexRecord<T>[] index;		//Adjacency Index. Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
 	
 	private static Consumer<String> reporter = (s) -> System.out.println("Invariant error: "+ s);
 	
@@ -58,14 +58,14 @@ public class SortledtonGraph<T extends Comparable<T>> {
 		
 		//Check all entries in the index array 
 		for (int i = 0; i < index.length; i++) {
-			VertexEntry<T> ve = index[i];
+			VertexRecord<T> ve = index[i];
 			if (ve != null) {
 				
 				//3. Check that adjacency set size is non-negative
 				if (ve.adjacencySetSize < 0) return report("Negative adjacency set size at index " + i);
 
 				//4. Verify the ID mapping is consistent with the lp-index
-				if (!logicalToPhysical.containsKey(ve.logicalId)) return report("Logical ID " + ve.logicalId + " in VertexEntry is not in logicalToPhysical.");
+				if (!logicalToPhysical.containsKey(ve.logicalId)) return report("Logical ID " + ve.logicalId + " in VertexRecord is not in logicalToPhysical.");
 			}
 		}			
 
@@ -82,9 +82,9 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 */
 	@SuppressWarnings("unchecked")
 	public SortledtonGraph() {
-		index = (VertexEntry<T>[]) new VertexEntry[INITIAL_VECTOR_SIZE];
+		index = (VertexRecord<T>[]) new VertexRecord[INITIAL_VECTOR_SIZE];
 		for (int i = 0; i < INITIAL_VECTOR_SIZE; i++) {
-			index[i] = new VertexEntry<>();
+			index[i] = new VertexRecord<>();
 		}
 		assert wellFormed() : "invariant failed at end of SortledtonGraph constructor";
 	}
@@ -176,7 +176,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
 		logicalToPhysical.put(logicalID, neighborhood);
 		
 		// populate the adjacency index
-		VertexEntry<T> entry = new VertexEntry<>(logicalID, neighborhood);
+		VertexRecord<T> entry = new VertexRecord<>(logicalID, neighborhood);
 	    index[vertexCount] = entry; 	// Using vertexCount as the next (logical) index
 		
 	    vertexCount++;
@@ -277,12 +277,12 @@ public class SortledtonGraph<T extends Comparable<T>> {
          * @return a new instance of a SortledtonGraph with the given data structure.
          */
         /* TODO fix compile errors
-        public static <U> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Integer> logicalToPhysical, VertexEntry[] index) {
+        public static <U> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Integer> logicalToPhysical, VertexRecord[] index) {
             SortledtonGraph<U> result = new SortledtonGraph<>();
             result.vertexCount = vertexCount;
             result.logicalToPhysical = new HashMap<>(logicalToPhysical);
             // Clone the index array and assign it to the result.
-            result.index = new SortledtonGraph.VertexEntry[index.length];
+            result.index = new SortledtonGraph.VertexRecord[index.length];
             for (int i = 0; i < index.length; i++) {
                 result.index[i] = index[i];
             }
