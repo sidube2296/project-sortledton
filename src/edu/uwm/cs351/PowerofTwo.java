@@ -5,24 +5,27 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * PowerOfTwoVector is an implementation of the Neighborhood interface, optimized
- * for handling small neighborhoods by using power-of-two-sized vectors. This
- * structure is sorted for efficient intersection operations and neighborhood scans.
+ * PowerofTwo is an implementation of the Neighborhood interface, optimized
+ * for handling small neighborhoods by using a sorted list to facilitate 
+ * binary search for insertion and intersection. 
  *
- * @param <T> The type of the vertex ID
+ * The structure maintains a sorted list of neighbors for efficient 
+ * intersection and lookups. Duplicates are not added.
+ *
+ * @param <T> The type of the vertex ID, must be Comparable.
  */
 public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
 
-    /** The list to store neighbors, kept sorted */
+    /** The list to store neighbors, kept sorted. */
     private final List<T> neighbors;
 
     /**
-     * Constructs a new PowerOfTwoVector with an empty list of neighbors.
+     * Constructs a new PowerofTwo with an empty list of neighbors.
      */
     public PowerofTwo() {
         this.neighbors = new ArrayList<>();
     }
-    
+
     /**
      * Returns the number of neighbors in the neighborhood.
      *
@@ -33,9 +36,11 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
     }
 
     /**
-     * Adds a neighbor to the neighborhood, keeping the vector sorted.
+     * Adds a neighbor to the neighborhood, keeping the list sorted.
+     * If the element already exists, it will not be added again.
      *
      * @param id The ID of the neighbor to add.
+     * @throws IllegalArgumentException if the element is null.
      */
     @Override
     public void addNeighbor(T id) {
@@ -44,8 +49,10 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
         }
         int index = Collections.binarySearch(neighbors, id);
         if (index < 0) {
-            neighbors.add(-index - 1, id); // Insert while maintaining sorted order
+            // Insert while maintaining sorted order
+            neighbors.add(-index - 1, id);
         }
+        // If index >= 0, the element already exists, so we do nothing.
     }
 
     /**
@@ -59,20 +66,23 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
         if (index >= 0) {
             neighbors.remove(index);
         }
+        // If element not found, no action is taken.
     }
 
     /**
-     * Retrieves all neighbors in the neighborhood.
+     * Retrieves all neighbors in the neighborhood as a new list.
+     * This ensures the original cannot be modified externally.
      *
      * @return A sorted list of neighbor IDs.
      */
     @Override
     public List<T> getNeighbors() {
-        return new ArrayList<>(neighbors); // Return a copy to prevent modification
+        return new ArrayList<>(neighbors);
     }
 
     /**
-     * Finds the intersection between this neighborhood and another power-of-two vector.
+     * Finds the intersection between this neighborhood and another.
+     * The intersection will contain only those elements present in both.
      *
      * @param other The other Neighborhood to intersect with.
      * @return A list of IDs representing common neighbors.
