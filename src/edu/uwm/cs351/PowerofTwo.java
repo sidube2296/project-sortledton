@@ -21,18 +21,45 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
 
     /**
      * Constructs a new PowerofTwo with an empty list of neighbors.
+     * After construction, we assert the invariants.
      */
     public PowerofTwo() {
         this.neighbors = new ArrayList<>();
+        assert wellformed();
+    }
+
+    /**
+     * Ensure the internal invariants hold:
+     *  - neighbors is not null.
+     *  - neighbors contains no null elements.
+     *  - neighbors is strictly sorted in ascending order (implies no duplicates).
+     */
+    private boolean wellformed() {
+        if (neighbors == null) return false;
+        for (int i = 0; i < neighbors.size(); i++) {
+            T elem = neighbors.get(i);
+            if (elem == null) return false;
+            if (i > 0) {
+                // Check strict ascending order: prev < current
+                if (neighbors.get(i-1).compareTo(elem) >= 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
      * Returns the number of neighbors in the neighborhood.
+     * We assert wellformed at start and end to ensure invariants hold continuously.
      *
      * @return The size of the neighborhood.
      */
     public int size() {
-        return neighbors.size();
+        assert wellformed();
+        int s = neighbors.size();
+        assert wellformed();
+        return s;
     }
 
     /**
@@ -44,6 +71,7 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
      */
     @Override
     public void addNeighbor(T id) {
+        assert wellformed();
         if (id == null) {
             throw new IllegalArgumentException("Element cannot be null");
         }
@@ -52,7 +80,7 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
             // Insert while maintaining sorted order
             neighbors.add(-index - 1, id);
         }
-        // If index >= 0, the element already exists, so we do nothing.
+        assert wellformed();
     }
 
     /**
@@ -62,11 +90,12 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
      */
     @Override
     public void removeNeighbor(T id) {
+        assert wellformed();
         int index = Collections.binarySearch(neighbors, id);
         if (index >= 0) {
             neighbors.remove(index);
         }
-        // If element not found, no action is taken.
+        assert wellformed();
     }
 
     /**
@@ -77,7 +106,10 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
      */
     @Override
     public List<T> getNeighbors() {
-        return new ArrayList<>(neighbors);
+        assert wellformed();
+        List<T> result = new ArrayList<>(neighbors);
+        assert wellformed();
+        return result;
     }
 
     /**
@@ -89,6 +121,7 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
      */
     @Override
     public List<T> intersect(Neighborhood<T> other) {
+        assert wellformed();
         List<T> intersection = new ArrayList<>();
         List<T> otherNeighbors = other.getNeighbors();
         int i = 0, j = 0;
@@ -106,6 +139,7 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
                 j++;
             }
         }
+        assert wellformed();
         return intersection;
     }
 }
