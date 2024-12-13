@@ -1,8 +1,8 @@
 import junit.framework.TestCase;
 import edu.uwm.cs351.PowerofTwo;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.lang.reflect.Field;
+
 
 /**
  * TestPowerofTwo is a JUnit 3-style test class that thoroughly tests 
@@ -15,13 +15,19 @@ import java.util.Collections;
 public class TestPowerofTwo extends TestCase {
 
 	private PowerofTwo<String> vector;
+	private Field neighborsField;
 
 	/**
 	 * Setup method to initialize the vector before each test.
 	 */
-	protected void setUp() {
-		vector = new PowerofTwo<>();
-	}
+	protected void setUp() throws Exception {
+        super.setUp();
+        vector = new PowerofTwo<>();
+        // Access the private 'neighbors' field using reflection
+        neighborsField = PowerofTwo.class.getDeclaredField("neighbors");
+        neighborsField.setAccessible(true);
+    }
+
 
 	/**
 	 * Test adding a single neighbor and verifying that 
@@ -726,4 +732,112 @@ public class TestPowerofTwo extends TestCase {
 	    List<String> intersection = vector.intersect(other);
 	    assertTrue(intersection.isEmpty());
 	}
+	
+	
+	/**
+	 * These tests attempt to break the invariants maintained by wellformed()
+	 * by using reflection to modify the private internal state of PowerofTwo.
+	 * 
+	 * If wellformed() is implemented correctly, it should detect these problems
+	 * when a public method is subsequently called. As a result, these tests will
+	 * throw AssertionError if run with assertions enabled.
+	 * 
+	 * IMPORTANT: These tests are for demonstration only. Normally, you should
+	 * not rely on reflection to break encapsulation. This is just to confirm that
+	 * wellformed() is indeed working.
+	 */
+	
+	/**
+     * INVARIANT CHECK TEST #1:
+     * Try inserting a null element into the neighbors list directly.
+     * Next time we call a method that triggers wellformed(), 
+     * it should fail with an AssertionError.
+     */
+	public void testInvariantNullElement() throws Exception {
+	    @SuppressWarnings("unchecked")
+	    List<String> neighbors = (List<String>)neighborsField.get(vector);
+
+	    // Add multiple elements so that the list is big
+	    // and our search won't need to touch the end.
+	    // We choose letters so '0' is lexicographically less.
+	    for (char c = 'A'; c <= 'K'; c++) {
+	        vector.addNeighbor(String.valueOf(c));
+	    }
+	    // neighbors is now ["A", "B", "C", ..., "K"]
+
+	    // Insert a null element illegally at the end of the list
+	    neighbors.add(null);
+
+	    try {
+	        // Now try to add "0" (zero).
+	        // Since "0" < "A", binarySearch will look at the front portion of the array,
+	        // never needing to examine the null at the end of the list.
+	        vector.addNeighbor("0");
+
+	        // If wellformed works correctly, after insertion 
+	        // it checks and should find the null and fail.
+	        fail("Should have caused AssertionError due to null element");
+	    } catch (AssertionError e) {
+	        // Expected: wellformed() should catch the null element and assert.
+	    } catch (NullPointerException npe) {
+	        fail("Got NullPointerException instead of AssertionError. The test scenario needs adjusting.");
+	    }
+	}
+
+    /**
+     * INVARIANT CHECK TEST #2:
+     * Insert elements in non-sorted order to break the sorting invariant.
+     * wellformed() should detect this when we do another operation.
+     */
+    public void testInvariantNotSorted() throws Exception {
+        @SuppressWarnings("unchecked")
+        List<String> neighbors = (List<String>)neighborsField.get(vector);
+
+        // Insert out-of-order elements directly
+        neighbors.add("Z");
+        neighbors.add("A");
+
+        try {
+            // Trigger assertion by removing an element (causing wellformed check)
+            vector.removeNeighbor("Z");
+            fail("Should have caused AssertionError due to sorting invariant break");
+        } catch (AssertionError e) {
+            // Expected
+        }
+    }
+
+    /**
+     * INVARIANT CHECK TEST #3:
+     * Insert duplicate elements directly. wellformed() should catch this.
+     */
+    public void testInvariantDuplicates() throws Exception {
+        @SuppressWarnings("unchecked")
+        List<String> neighbors = (List<String>)neighborsField.get(vector);
+
+        neighbors.add("A");
+        neighbors.add("A"); // duplicate
+
+        try {
+            // Any operation that checks invariants
+            vector.addNeighbor("B");
+            fail("Should have caused AssertionError due to duplicate elements");
+        } catch (AssertionError e) {
+            // Expected
+        }
+    }
+
+    /**
+     * INVARIANT CHECK TEST #4:
+     * Confirm normal operations do not cause any AssertionError.
+     * This ensures that if we don't break invariants artificially,
+     * everything works fine.
+     */
+    public void testInvariantPreservedUnderNormalUse() {
+        // Normal usage: add elements in sorted order, no duplicates, no nulls
+        vector.addNeighbor("A");
+        vector.addNeighbor("B");
+        vector.addNeighbor("C");
+        // Should not fail
+        assertEquals(3, vector.size());
+    }
 }
