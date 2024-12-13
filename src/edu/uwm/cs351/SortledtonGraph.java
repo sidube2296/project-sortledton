@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-import java.util.ArrayList;
+import java.lang.reflect.Array;
 import java.util.HashMap;
 
 /**
@@ -276,19 +276,23 @@ public class SortledtonGraph<T extends Comparable<T>> {
          * @param index the index array.
          * @return a new instance of a SortledtonGraph with the given data structure.
          */
-        /* TODO fix compile errors
-        public static <U> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Integer> logicalToPhysical, VertexRecord[] index) {
+        public static <U extends Comparable<U>> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Neighborhood<U>> logicalToPhysical, VertexRecord<U>[] index) {
             SortledtonGraph<U> result = new SortledtonGraph<>();
             result.vertexCount = vertexCount;
-            result.logicalToPhysical = new HashMap<>(logicalToPhysical);
+            result.logicalToPhysical = new HashMap<Integer, Neighborhood<U>>(logicalToPhysical);
+			
             // Clone the index array and assign it to the result.
-            result.index = new SortledtonGraph.VertexRecord[index.length];
+			
+			@SuppressWarnings("unchecked") // We know that it's safe to cast as VertexRecord<Integer>[] here because we're constructing the array directly
+			VertexRecord<U>[] newIndex = (VertexRecord<U>[]) Array.newInstance(VertexRecord.class, index.length);
+			
+			result.index = newIndex;
             for (int i = 0; i < index.length; i++) {
+				// TODO: Should this be constructing NEW instances, rather than assigning existing ones?
                 result.index[i] = index[i];
             }
             return result;
         }
-        */
 
         /**
          * Return whether the debugging instance meets the requirements on the invariant.
