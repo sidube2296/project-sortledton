@@ -1,7 +1,6 @@
 import junit.framework.TestCase;
 import edu.uwm.cs351.UnrolledSkipList;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
