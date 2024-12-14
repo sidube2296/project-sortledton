@@ -464,7 +464,28 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	    vertexRecord.adjacencySet = newNeighborhood;
 	}
 
-	
+	private void insertEdgeByPhysicalId(int srcPhysicalId, int destPhysicalId) {
+		//***TODO***//
+	}
+	private void deleteEdgeByPhysicalId(int srcPhysicalId, int destPhysicalId) {
+		//***TODO***//
+	}
+	private void deleteVertexByPhysicalId(int physicalId) {
+		//***TODO***//
+	}
+	private List<T> getNeighborsByPhysicalId(int physicalId) {
+		//***TODO***//
+		return null;
+	}
+	private boolean findEdgeByPhysicalId(int srcPhysicalId, int destPhysicalId) {
+		//***TODO***//
+		return true;
+	}
+	private List<T> intersectNeighborsByPhysicalId(int v1PhysicalId, int v2PhysicalId) {
+		//***TODO***//
+		return null;
+	}
+
 	
     public static class Spy {
         /**
