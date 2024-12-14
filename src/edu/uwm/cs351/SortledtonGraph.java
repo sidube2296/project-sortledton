@@ -166,6 +166,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 */
 	public void deleteEdge(T srcId, T destId) { 
 		if (srcId == null || destId == null) throw new IllegalArgumentException("@deleteEdge, the parameters, srcID and destID may not be null.");
+		
 		assert wellFormed() : "invariant failed at start of deleteEdge";
 		
 		// Ensure both vertices exist
@@ -243,7 +244,25 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	public void deleteVertex(T id) {
 		if (id == null) throw new IllegalArgumentException("@insertVertex, the parameter, id, may not be null.");
 		assert wellFormed() : "invariant failed at start of deleteVertex.";
-		/*...*/ 
+
+		// Retrieve the physical index for the vertex and its vertex record from the adj-index
+		Integer logicalIndex = id.hashCode();
+	    Integer physicalIndex = logicalToPhysical.get(logicalIndex);
+	    if (physicalIndex == null) throw new IllegalArgumentException("The vertex to delete does not exist in the graph.");
+	    VertexRecord<T> vertexRecord = adjacencyIndex[physicalIndex];
+
+	    // Remove all edges associated with the vertex in other vertices' neighborhood objects.
+	    List<T> neighbors = vertexRecord.adjacencySet.getNeighbors();
+	    for (T neighbor : neighbors) deleteEdge(id, neighbor);
+	    
+	    // Remove the vertex from lp-index, pl-index, and the adj-index
+	    logicalToPhysical.remove(logicalIndex);
+	    physicalToLogical[physicalIndex] = null;
+	    adjacencyIndex[physicalIndex] = null;
+
+	    // Decrement the vertex count
+	    vertexCount--;
+		
 		assert wellFormed() : "invariant failed at end of deleteVertex."; 
 	}
 
