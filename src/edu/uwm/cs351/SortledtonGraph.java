@@ -197,6 +197,9 @@ public class SortledtonGraph<T extends Comparable<T>> {
         destNeighborhood.removeNeighbor(srcId);
         destRecord.adjacencySetSize--;
         
+        // Check for conversion to PowerofTwo
+        if (destRecord.adjacencySetSize < BLOCK_SIZE) convertToPowerofTwo(destRecord);
+                
 		assert wellFormed() : "invariant failed at end of deleteEdge";
 	}
 	
@@ -261,7 +264,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
 
 	    // Remove all edges associated with the vertex in other vertices' neighborhood objects.
 	    List<T> neighbors = vertexRecord.adjacencySet.getNeighbors();
-	    for (T neighbor : neighbors) deleteEdge(id, neighbor);
+	    for (T neighbor : neighbors) deleteEdge(id, neighbor);		// Note: potential PowerofTwo conversion handled by deleteEdge
 	    
 	    // Remove the vertex from lp-index, pl-index, and the adj-index
 	    logicalToPhysical.remove(logicalIndex);
@@ -426,7 +429,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	    Neighborhood<T> currentNeighborhood = vertexRecord.adjacencySet;
 
 	    // If already an UnrolledSkipList, no conversion needed - this should never run 
-	    // but is included due to the huge time efficiency cost of this method.
+	    // but is included due to the time efficiency cost of this method.
 	    if (currentNeighborhood instanceof UnrolledSkipList) return;
 	    
 	    // Create a new UnrolledSkipList and transfer neighbors
@@ -435,11 +438,33 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	        newNeighborhood.addNeighbor(neighbor);
 	    }
 
-	    // Replace the adjacency set in the VertexRecord
 	    vertexRecord.adjacencySet = newNeighborhood;
 	}
 
+	/**
+	 * Converts the Neighborhood of a given vertex to a PowerofTwo if its size falls below 
+	 * the threshold, BLOCK_SIZE (as checked and called in deleteEdge)
+	 *
+	 * @param physicalIndex The physical index of the vertex in the adjacency index.
+	 */
+	private void convertToPowerofTwo(VertexRecord<T> vertexRecord) {
+	    Neighborhood<T> currentNeighborhood = vertexRecord.adjacencySet;
 
+	    // If already a PowerofTwo, no conversion needed - this should never run 
+	    // but is included due to the time efficiency cost of this method.
+	    if (currentNeighborhood instanceof PowerofTwo) return;
+	    
+	    // Create a new PowerofTwo adjacency set and transfer neighbors/edges
+	    PowerofTwo<T> newNeighborhood = new PowerofTwo<>();
+	    for (T neighbor : currentNeighborhood.getNeighbors()) {
+	        newNeighborhood.addNeighbor(neighbor);
+	    }
+
+	    vertexRecord.adjacencySet = newNeighborhood;
+	}
+
+	
+	
 	
 	
     public static class Spy {
