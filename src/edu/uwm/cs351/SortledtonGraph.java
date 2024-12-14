@@ -432,6 +432,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
         assert wellFormed() : "Invariant failed at end of scanNeighbors.";
     }
 
+
     /**
      * Finds the intersection of neighbors between two vertices.
      *
@@ -653,4 +654,5 @@ public class SortledtonGraph<T extends Comparable<T>> {
             return sg.wellFormed();
         }
     }
+
 }

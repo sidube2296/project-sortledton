@@ -107,12 +107,22 @@ public class TestInternals extends TestCase {
 
     // Test method for inserting edge with non-existent vertices
     public void testInsertEdgeNonExistentVertices() {
-        try {
-            graph.insertEdge(1, 2);
-            fail("Expected IllegalArgumentException for non-existent vertices.");
-        } catch (IllegalArgumentException e) {
-            // Expected behavior
-        }
+        // Before inserting, vertices 1 and 2 do not exist
+        assertFalse(graph.hasVertex(1));
+        assertFalse(graph.hasVertex(2));
+
+        // Insert edge between non-existent vertices
+        graph.insertEdge(1, 2); // Should auto-create vertices 1 and 2
+
+        // After insertion, vertices 1 and 2 should exist
+        assertTrue(graph.hasVertex(1));
+        assertTrue(graph.hasVertex(2));
+
+        // The edge should exist
+        assertTrue(graph.findEdge(1, 2));
+        assertTrue(graph.findEdge(2, 1)); // Assuming undirected graph
+
+        // Verify invariants
         assertTrue(Spy.wellFormed(graph));
     }
 
