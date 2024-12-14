@@ -276,8 +276,21 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 */
 	public boolean findEdge(T srcId, T destId) {
 		if (srcId == null) throw new IllegalArgumentException("@findEdge, the parameter, srcId, may not be null.");
-		/*...*/ 
-		return true;
+	    assert wellFormed() : "invariant failed at start of findEdge";
+
+	    // Check if the source vertex exists
+	    Integer srcPhysicalId = logicalToPhysical.get(srcId.hashCode());
+	    if (srcPhysicalId == null) return false; // Source vertex does not exist
+	    
+	    // Retrieve the source vertex's record
+	    VertexRecord<T> srcRecord = adjacencyIndex[srcPhysicalId];
+
+	    // Check if the destination vertex exists in the source's neighborhood
+	    boolean edgeExists = srcRecord.adjacencySet.getNeighbors().contains(destId);
+
+	    assert wellFormed() : "invariant failed at end of findEdge";
+
+	    return edgeExists;
 	}
 
 	/**
