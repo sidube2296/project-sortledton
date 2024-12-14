@@ -131,28 +131,28 @@ public class SortledtonGraph<T extends Comparable<T>> {
 		assert wellFormed() : "invariant failed at start of insertEdge";
 		
 		// Ensure both vertices exist
-	    if (!logicalToPhysical.containsKey(srcId.hashCode())) {
-	        insertVertex(srcId);
-	    }
-	    if (!logicalToPhysical.containsKey(destId.hashCode())) {
-	        insertVertex(destId);
-	    }
-
+		Integer srcLogicalId = srcId.hashCode();
+		Integer destLogicalId = destId.hashCode();
+	    if (!logicalToPhysical.containsKey(srcLogicalId)) insertVertex(srcId);
+	    if (!logicalToPhysical.containsKey(destLogicalId)) insertVertex(destId);
+	    
 	    // Retrieve physical IDs for both vertices
-	    int srcPhysicalId = logicalToPhysical.get(srcId.hashCode());
-	    int destPhysicalId = logicalToPhysical.get(destId.hashCode());
+	    int srcPhysicalId = logicalToPhysical.get(srcLogicalId);
+	    int destPhysicalId = logicalToPhysical.get(destLogicalId);
 
 	    // Update adjacencyIndex for srcId
 	    VertexRecord<T> srcRecord = adjacencyIndex[srcPhysicalId];
-	    srcRecord.adjacencySet.addNeighbor(destId);
+	    if (!srcRecord.adjacencySet.getNeighbors().contains(destId)) { 	// only make the change if the edge does not already exist
+	        srcRecord.adjacencySet.addNeighbor(destId);
+	        srcRecord.adjacencySetSize++;
+	    }
 
 	    // Update adjacencyIndex for destId
 	    VertexRecord<T> destRecord = adjacencyIndex[destPhysicalId];
-	    destRecord.adjacencySet.addNeighbor(srcId);
-
-	    // Update adjacency sizes
-	    srcRecord.adjacencySetSize++;
-	    destRecord.adjacencySetSize++;
+	    if (!destRecord.adjacencySet.getNeighbors().contains(srcId)) {	// only make the change if the edge does not already exist
+	        destRecord.adjacencySet.addNeighbor(srcId);
+	        destRecord.adjacencySetSize++;
+	    }
 	    
 	    assert wellFormed() : "invariant failed at end of insertEdge";
 	}
@@ -242,7 +242,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 * @throws IllegalArgumentException if the vertex ID is null.
 	 */
 	public void deleteVertex(T id) {
-		if (id == null) throw new IllegalArgumentException("@insertVertex, the parameter, id, may not be null.");
+		if (id == null) throw new IllegalArgumentException("@deleteVertex, the parameter, id, may not be null.");
 		assert wellFormed() : "invariant failed at start of deleteVertex.";
 
 		// Retrieve the physical index for the vertex and its vertex record from the adj-index
