@@ -13,12 +13,29 @@ public class VertexRecord<T extends Comparable<T>> {
     public int logicalId; // The hash code for the vertex
     public int adjacencySetSize; // Number of neighbors in the adjacency set
 
-    private static Consumer<String> reporter = (s) -> System.out.println("Invariant error: " + s);
+    private static Consumer<WellFormedError> reporter = (s) -> System.out.println("Invariant error: " + s.toString());
 
-    private boolean report(String error) {
+    private boolean report(WellFormedError error) {
         reporter.accept(error);
         return false;
     }
+	
+	/**
+	 * Holds a set of possible WellFormed error messages.
+	 */
+	public enum WellFormedError {
+		LOGICAL_ID("logicalID cannot be negative"),
+		ADJACENCY_SET("the adjacency set must be initialized (non-null)"),
+		ADJACENCY_SET_SIZE("the adjacency set's size must be non-negative"),
+		ADJACENCY_SET_MISMATCH("adjacencySetSize does not match the actual number of neighbors.");
+
+		private String message; // Message for the enum key
+
+		WellFormedError(String message) { this.message = message; }
+		
+		@Override // Implementation
+		public String toString() { return this.message; }
+	}
 
     /**
      * Checks that the VertexRecord invariant is correctly adhered to.
@@ -27,19 +44,15 @@ public class VertexRecord<T extends Comparable<T>> {
      */
     private boolean wellFormed() {
         // 1. logicalID must be greater than or equal to 0
-        if (logicalId < 0)
-            return report("logicalID cannot be negative.");
+        if (logicalId < 0) return report(WellFormedError.LOGICAL_ID);
         // 2. the adjacencySet must be properly initialized (non-null)
-        if (adjacencySet == null)
-            return report("the adjacency set must be initialized (non-null)");
+        if (adjacencySet == null) return report(WellFormedError.ADJACENCY_SET);
 
         // 3. the adjacency set size must not be negative.
-        if (adjacencySetSize < 0)
-            return report("the adjacency set's size must be non-negative");
+        if (adjacencySetSize < 0) return report(WellFormedError.ADJACENCY_SET_SIZE);
 
         // 4. adjacencySetSize must match the actual number of neighbors
-        if (adjacencySetSize != adjacencySet.getNeighbors().size())
-            return report("adjacencySetSize does not match the actual number of neighbors.");
+        if (adjacencySetSize != adjacencySet.getNeighbors().size()) return report(WellFormedError.ADJACENCY_SET_MISMATCH);
 
         return true;
     }
@@ -95,4 +108,52 @@ public class VertexRecord<T extends Comparable<T>> {
         this.logicalId = logicalId;
         assert wellFormed() : "invariant failed at end of setLogicalId.";
     }
+	
+	/**
+	 * Spy class for testing purposes.
+	 */
+	public static class Spy {
+		/**
+		 * Return the sink for invariant error messages.
+		 * 
+		 * @return current reporter.
+		 */
+		public Consumer<WellFormedError> getReporter() {
+			return reporter;
+		}
+		
+		/**
+		 * Change the sink for invariant error messages.
+		 * @param r where to send invariant error messages.
+		 */
+		public void setReporter(Consumer<WellFormedError> r) {
+			reporter = r;
+		}
+		
+		/**
+		 * Create a debugging instance of the VertexRecord with the given field values
+		 * @param adjacencySet Pointer to the Neighborhood object (PowerofTwo or UnrolledSkipList)
+		 * @param logicalId The hash code for the vertex
+		 * @param adjacencySetSize Number of neighbors in the adjacency set
+		 * @return
+		 */
+		public <U extends Comparable<U>> VertexRecord<U> newInstance(Neighborhood<U> adjacencySet, int logicalId, int adjacencySetSize) {
+			VertexRecord<U> newRecord = new VertexRecord<U>();
+			newRecord.adjacencySet = adjacencySet;
+			newRecord.logicalId = logicalId;
+			newRecord.adjacencySetSize = adjacencySetSize;
+			
+			return newRecord;
+		}
+		
+		/**
+		 * Return whether the debugging instance meets the requirements on the invariant.
+		 * 
+		 * @param instance instance of VertexRecord to use, must not be null.
+		 * @return whether it passes the check.
+		 */
+		public boolean wellFormed(VertexRecord<?> instance) {
+			return instance.wellFormed();
+		}
+	}
 }
