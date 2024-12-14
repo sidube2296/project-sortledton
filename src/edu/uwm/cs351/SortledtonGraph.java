@@ -158,6 +158,10 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	        destRecord.adjacencySetSize++;
 	    }
 	    
+	    // Check for conversion to UnrolledSkipList
+	    if (srcRecord.adjacencySetSize >= BLOCK_SIZE) convertToUnrolledSkipList(srcPhysicalId);
+	    if (destRecord.adjacencySetSize >= BLOCK_SIZE) convertToUnrolledSkipList(destPhysicalId);
+	    	    
 	    assert wellFormed() : "invariant failed at end of insertEdge";
 	}
 
