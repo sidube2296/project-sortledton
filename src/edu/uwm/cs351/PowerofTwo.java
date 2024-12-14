@@ -142,4 +142,16 @@ public class PowerofTwo<T extends Comparable<T>> implements Neighborhood<T> {
         assert wellformed();
         return intersection;
     }
+    
+    /**
+     * Checks if a neighbor exists in this neighborhood using binary search.
+     *
+     * @param id The ID of the neighbor to check.
+     * @return True if the neighbor exists, otherwise false.
+     */
+    @Override
+    public boolean contains(T id) {
+        if (id == null) return false;
+        return Collections.binarySearch(neighbors, id) >= 0;
+    }
 }

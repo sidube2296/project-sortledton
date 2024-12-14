@@ -13,6 +13,7 @@ public class TestEfficiency extends TestCase {
     @Override
     protected void setUp() {
         graph = new SortledtonGraph<>();
+        graph.setDebug(false); // Disable invariant checks for efficiency
         random = new Random(42);
     }
 

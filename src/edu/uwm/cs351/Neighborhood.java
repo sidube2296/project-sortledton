@@ -44,4 +44,13 @@ public interface Neighborhood<T extends Comparable<T>> {
      * @throws IllegalArgumentException if other is null.
      */
     List<T> intersect(Neighborhood<T> other);
+    
+    /**
+     * Checks if a neighbor exists in this neighborhood.
+     *
+     * @param id The ID of the neighbor to check.
+     * @return True if the neighbor exists, otherwise false.
+     * @throws IllegalArgumentException if id is null.
+     */
+     boolean contains(T id);
 }

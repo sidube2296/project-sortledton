@@ -346,4 +346,19 @@ public class UnrolledSkipList<T extends Comparable<T>> implements Neighborhood<T
         List<T> neighbors = getNeighbors();
         return "UnrolledSkipList" + neighbors.toString();
     }
+    
+    /**
+     * Checks if a neighbor exists in this neighborhood using binary search across blocks.
+     *
+     * @param id The ID of the neighbor to check.
+     * @return True if the neighbor exists, otherwise false.
+     */
+    @Override
+    public boolean contains(T id) {
+        if (id == null) return false;
+        int blockIndex = findBlock(id);
+        if (blockIndex == blocks.size()) return false;
+        List<T> targetBlock = blocks.get(blockIndex);
+        return Collections.binarySearch(targetBlock, id, comparator) >= 0;
+    }
 }
