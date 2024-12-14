@@ -329,10 +329,22 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 * @param v1Id The first vertex ID.
 	 * @param v2Id The second vertex ID.
 	 * @return A list of IDs that represent the common neighbors.
+	 * @throws IllegalArgumentException if either vertex ID is null or if one of the vertices does not exist.
 	 */
 	public List<T> intersectNeighbors(T v1Id, T v2Id) {
-		/*...*/
-		return null;
+		if (v1Id == null || v2Id == null) throw new IllegalArgumentException("Vertex IDs cannot be null.");
+
+		// Retrieve physical IDs for both vertices
+		Integer v1PhysicalId = logicalToPhysical.get(v1Id.hashCode());
+		Integer v2PhysicalId = logicalToPhysical.get(v2Id.hashCode());
+
+		if (v1PhysicalId == null || v2PhysicalId == null) throw new IllegalArgumentException("One or both vertices do not exist in the graph.");
+		
+		// Retrieve the neighborhoods of both vertices
+		Neighborhood<T> v1Neighborhood = adjacencyIndex[v1PhysicalId].adjacencySet;
+		Neighborhood<T> v2Neighborhood = adjacencyIndex[v2PhysicalId].adjacencySet;
+
+		return v1Neighborhood.intersect(v2Neighborhood);
 	}
 	
 	 /**
