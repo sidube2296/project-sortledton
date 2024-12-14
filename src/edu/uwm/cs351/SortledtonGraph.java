@@ -25,13 +25,17 @@ import java.util.HashMap;
  */
 public class SortledtonGraph<T extends Comparable<T>> {
 	//Constants
-	private static final int INITIAL_VECTOR_SIZE = 131072; //Note: Can update this later, as needed. This based is based on the authors' implementation that we referenced.
+	private static final int INITIAL_VECTOR_SIZE = 131072;	// Note: Can update this later, as needed. This based is based on the authors' 
+															// implementation that we referenced.
+	private static final int BLOCK_SIZE = 128; 				// "block size", as described in section 4.2 - Data Structure. 
+															// This is the suggested threshold to switch between power of two vectors and 
+															// unrolled skip lists for the adjacency sets ("Neighborhoods")
 	
 	//Fields
 	private int vertexCount = 0;
-	private HashMap<Integer, Integer> logicalToPhysical;	//"lp-index" from Figure 6 - Maps hash codes to pl indices
-	private Integer[] physicalToLogical;					//"pl-index" - values are hash codes of the neighborhoods, indices are 1:1 to adjacencyIndex
-	private VertexRecord<T>[] adjacencyIndex;				//Adjacency Index. indices are 1:1 to pl-index
+	private HashMap<Integer, Integer> logicalToPhysical;	// "lp-index" from Figure 6 - Maps hash codes to pl indices
+	private Integer[] physicalToLogical;					// "pl-index" - values are hash codes of the neighborhoods, indices are 1:1 to adjacencyIndex
+	private VertexRecord<T>[] adjacencyIndex;				// Adjacency Index. indices are 1:1 to pl-index
 	
 	private static Consumer<String> reporter = (s) -> System.out.println("Invariant error: "+ s);
 	
@@ -406,6 +410,31 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	        physicalToLogical = newPhysicalToLogical;
 	    }
 	}
+	
+	/**
+	 * Converts the Neighborhood of a given vertex from PowerOfTwo to an UnrolledSkipList if 
+	 * its size exceeds the threshold, BLOCK_SIZE (as checked and called elsewhere).
+	 *
+	 * @param physicalIndex The physical index of the vertex in the adjacency index.
+	 */
+	private void convertToUnrolledSkipList(int physicalIndex) {
+	    VertexRecord<T> vertexRecord = adjacencyIndex[physicalIndex];
+	    Neighborhood<T> currentNeighborhood = vertexRecord.adjacencySet;
+
+	    // If already an UnrolledSkipList, no conversion needed - this should never run 
+	    // but is included due to the huge time efficiency cost of this method.
+	    if (currentNeighborhood instanceof UnrolledSkipList) return;
+	    
+	    // Create a new UnrolledSkipList and transfer neighbors
+	    UnrolledSkipList<T> newNeighborhood = new UnrolledSkipList<>();
+	    for (T neighbor : currentNeighborhood.getNeighbors()) {
+	        newNeighborhood.addNeighbor(neighbor);
+	    }
+
+	    // Replace the adjacency set in the VertexRecord
+	    vertexRecord.adjacencySet = newNeighborhood;
+	}
+
 
 	
 	
