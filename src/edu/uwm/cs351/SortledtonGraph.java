@@ -294,6 +294,36 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	}
 
 	/**
+	 * Processes all neighbors of a given vertex using the provided (?) action.
+	 * TODO [I'm not clear what the function of this method is intended to be.
+	 *       I've added it with a Consumer to be sort of generic. Check Per Fuchs
+	 *       implementation for more details. -Dustin]
+	 *
+	 * @param vertexId The ID of the vertex whose neighbors are to be scanned.
+	 * @param action The action to perform on each neighbor.
+	 * @throws IllegalArgumentException if the vertex does not exist.
+	 */
+	public void scanNeighbors(T vertexId, Consumer<T> action) {
+	    if (vertexId == null) throw new IllegalArgumentException("vertexId cannot be null.");
+	    assert wellFormed() : "invariant failed at start of scanNeighbors";
+	    
+	    // Retrieve the physical ID for the vertex
+	    Integer physicalId = logicalToPhysical.get(vertexId.hashCode());
+	    if (physicalId == null) throw new IllegalArgumentException("Vertex does not exist: " + vertexId);
+	    
+	    // Retrieve the adjacency set
+	    VertexRecord<T> vertexRecord = adjacencyIndex[physicalId];
+
+	    // Process each neighbor
+	    for (T neighbor : vertexRecord.adjacencySet.getNeighbors()) {
+	        action.accept(neighbor);
+	    }
+	    
+	    assert wellFormed() : "invariant failed at end of scanNeighbors";
+	}
+
+	
+	/**
 	 * Finds the intersection of neighbors between two vertices.
 	 *
 	 * @param v1Id The first vertex ID.
