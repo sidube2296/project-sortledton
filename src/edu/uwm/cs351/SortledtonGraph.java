@@ -25,12 +25,13 @@ import java.util.HashMap;
  */
 public class SortledtonGraph<T extends Comparable<T>> {
 	//Constants
-	private static final int INITIAL_VECTOR_SIZE = 128; //TODO update this later when we start to scale. Per Fuchs used 131072
+	private static final int INITIAL_VECTOR_SIZE = 131072; //Note: Can update this later, as needed. This based is based on the authors' implementation that we referenced.
 	
 	//Fields
 	private int vertexCount = 0;
-	private HashMap<Integer, Neighborhood<T>> logicalToPhysical = new HashMap<>(INITIAL_VECTOR_SIZE);	//"lp-index" from Figure 6
-	private VertexRecord<T>[] index;		//Adjacency Index. Contains fields logicalID --> "pl-index" & adjacencySet --> "adj. set pointer"
+	private HashMap<Integer, Integer> logicalToPhysical;	//"lp-index" from Figure 6 - Maps hash codes to pl indices
+	private Integer[] physicalToLogical;					//"pl-index" - values are hash codes of the neighborhoods, indices are 1:1 to adjacencyIndex
+	private VertexRecord<T>[] adjacencyIndex;				//Adjacency Index. indices are 1:1 to pl-index
 	
 	private static Consumer<String> reporter = (s) -> System.out.println("Invariant error: "+ s);
 	
@@ -46,19 +47,22 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 */
 	private boolean wellFormed() {
 		//1. the lp-index and pl index must not be null
-		if (logicalToPhysical == null || index == null) return report("Data structures for graph must not be null.");
+		if (logicalToPhysical == null || physicalToLogical == null || adjacencyIndex == null) return report("Data structures for graph must not be null.");
 		
 		//2. the neighborhood for each used hashCode key must not be null
-		for (Entry<Integer, Neighborhood<T>> entry : logicalToPhysical.entrySet()) {
+		for (Entry<Integer, Integer> entry : logicalToPhysical.entrySet()) {
 			Integer logicalID = entry.getKey();
-			Neighborhood<T> neighborhood = entry.getValue();
+			Integer physicalIndex = entry.getValue();
 
-			if (neighborhood == null) return report("Neighborhood is null for logical ID: " + logicalID);
+			if (physicalIndex == null) return report("physical index is undefined for logical ID: " + logicalID);
+			
+			//The pl-index must also map correctly
+			if (physicalToLogical[physicalIndex] != logicalID) return report("the lp and pl indices do not correctly reference each other for " + logicalID);
 		}
 		
 		//Check all entries in the index array 
-		for (int i = 0; i < index.length; i++) {
-			VertexRecord<T> ve = index[i];
+		for (int i = 0; i < adjacencyIndex.length; i++) {
+			VertexRecord<T> ve = adjacencyIndex[i];
 			if (ve != null) {
 				
 				//3. Check that adjacency set size is non-negative
@@ -82,10 +86,9 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 */
 	@SuppressWarnings("unchecked")
 	public SortledtonGraph() {
-		index = (VertexRecord<T>[]) new VertexRecord[INITIAL_VECTOR_SIZE];
-		for (int i = 0; i < INITIAL_VECTOR_SIZE; i++) {
-			index[i] = new VertexRecord<>();
-		}
+		adjacencyIndex = (VertexRecord<T>[]) new VertexRecord[INITIAL_VECTOR_SIZE];
+		physicalToLogical = new Integer[INITIAL_VECTOR_SIZE];
+		logicalToPhysical = new HashMap<>(INITIAL_VECTOR_SIZE);
 		assert wellFormed() : "invariant failed at end of SortledtonGraph constructor";
 	}
 	
@@ -107,7 +110,9 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 * @throws IllegalArgumentException if the vertex ID is null.
 	 */
 	public List<T> getNeighbors(T vertexId) {
-		Neighborhood<T> neighborhood = logicalToPhysical.get(vertexId.hashCode());
+		Integer physicalID = logicalToPhysical.get(vertexId.hashCode());
+		VertexRecord<T> assocVR = adjacencyIndex[physicalID];
+		Neighborhood<T> neighborhood = assocVR.adjacencySet;
 		if (neighborhood == null) {
 			throw new IllegalArgumentException("Vertex does not exist: " + vertexId);
 		}
@@ -124,9 +129,32 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	public void insertEdge(T srcId, T destId) { 
 		if (srcId == null || destId == null) throw new IllegalArgumentException("@insertEdge, the parameters, srcID and destID may not be null.");
 		assert wellFormed() : "invariant failed at start of insertEdge";
-		logicalToPhysical.computeIfAbsent(srcId.hashCode(), k -> new PowerofTwo<>()).addNeighbor(destId);
-	    logicalToPhysical.computeIfAbsent(destId.hashCode(), k -> new PowerofTwo<>()).addNeighbor(srcId);
-		assert wellFormed() : "invariant failed at end of insertEdge";
+		
+		// Ensure both vertices exist
+		Integer srcLogicalId = srcId.hashCode();
+		Integer destLogicalId = destId.hashCode();
+	    if (!logicalToPhysical.containsKey(srcLogicalId)) insertVertex(srcId);
+	    if (!logicalToPhysical.containsKey(destLogicalId)) insertVertex(destId);
+	    
+	    // Retrieve physical IDs for both vertices
+	    int srcPhysicalId = logicalToPhysical.get(srcLogicalId);
+	    int destPhysicalId = logicalToPhysical.get(destLogicalId);
+
+	    // Update adjacencyIndex for srcId
+	    VertexRecord<T> srcRecord = adjacencyIndex[srcPhysicalId];
+	    if (!srcRecord.adjacencySet.getNeighbors().contains(destId)) { 	// only make the change if the edge does not already exist
+	        srcRecord.adjacencySet.addNeighbor(destId);
+	        srcRecord.adjacencySetSize++;
+	    }
+
+	    // Update adjacencyIndex for destId
+	    VertexRecord<T> destRecord = adjacencyIndex[destPhysicalId];
+	    if (!destRecord.adjacencySet.getNeighbors().contains(srcId)) {	// only make the change if the edge does not already exist
+	        destRecord.adjacencySet.addNeighbor(srcId);
+	        destRecord.adjacencySetSize++;
+	    }
+	    
+	    assert wellFormed() : "invariant failed at end of insertEdge";
 	}
 
 	/**
@@ -138,8 +166,29 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 */
 	public void deleteEdge(T srcId, T destId) { 
 		if (srcId == null || destId == null) throw new IllegalArgumentException("@deleteEdge, the parameters, srcID and destID may not be null.");
+		
 		assert wellFormed() : "invariant failed at start of deleteEdge";
-		/*...*/ 
+		
+		// Ensure both vertices exist
+	    Integer srcPhysicalId = logicalToPhysical.get(srcId.hashCode());
+	    Integer destPhysicalId = logicalToPhysical.get(destId.hashCode());
+
+	    if (srcPhysicalId == null || destPhysicalId == null) throw new IllegalArgumentException("One or both vertices do not exist in the current state.");
+	    	
+	    // Retrieve the vertex records
+	    VertexRecord<T> srcRecord = adjacencyIndex[srcPhysicalId];
+	    VertexRecord<T> destRecord = adjacencyIndex[destPhysicalId];
+	    
+	    // Remove the destination vertex from the source vertex's neighborhood
+        Neighborhood<T> srcNeighborhood = srcRecord.adjacencySet;
+        srcNeighborhood.removeNeighbor(destId);
+        srcRecord.adjacencySetSize--;
+        
+        // Remove the source vertex from the destination vertex's neighborhood
+        Neighborhood<T> destNeighborhood = destRecord.adjacencySet;
+        destNeighborhood.removeNeighbor(srcId);
+        destRecord.adjacencySetSize--;
+        
 		assert wellFormed() : "invariant failed at end of deleteEdge";
 	}
 	
@@ -162,22 +211,24 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 */
 	public void insertVertex(T id) { 
 		if (id == null) throw new IllegalArgumentException("@insertVertex, the parameter, id, may not be null.");
+		
 		int logicalID = id.hashCode();
 		if (logicalToPhysical.containsKey(logicalID)) throw new IllegalStateException("Vertex already exits: " + id);
+		
 		assert wellFormed() : "invariant failed at start of insertVertex.";
 		
-		/*TODO ensureCapacity
-		 * ensureCapacity();
-		 */
+		int physicalIndex = vertexCount;
 		
+		ensureCapacity(physicalToLogical.length + 1);
 		
-		// place the new Vertex in the lp-index
+		// place the new Vertex in the lp-index and pl-index
+		logicalToPhysical.put(logicalID, physicalIndex);
+		physicalToLogical[physicalIndex] = logicalID;
+		
+		// create the vertex record in the adjacency index
 		Neighborhood<T> neighborhood = new PowerofTwo<>();
-		logicalToPhysical.put(logicalID, neighborhood);
-		
-		// populate the adjacency index
 		VertexRecord<T> entry = new VertexRecord<>(logicalID, neighborhood);
-	    index[vertexCount] = entry; 	// Using vertexCount as the next (logical) index
+	    adjacencyIndex[physicalIndex] = entry; 
 		
 	    vertexCount++;
 		
@@ -191,9 +242,27 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 * @throws IllegalArgumentException if the vertex ID is null.
 	 */
 	public void deleteVertex(T id) {
-		if (id == null) throw new IllegalArgumentException("@insertVertex, the parameter, id, may not be null.");
+		if (id == null) throw new IllegalArgumentException("@deleteVertex, the parameter, id, may not be null.");
 		assert wellFormed() : "invariant failed at start of deleteVertex.";
-		/*...*/ 
+
+		// Retrieve the physical index for the vertex and its vertex record from the adj-index
+		Integer logicalIndex = id.hashCode();
+	    Integer physicalIndex = logicalToPhysical.get(logicalIndex);
+	    if (physicalIndex == null) throw new IllegalArgumentException("The vertex to delete does not exist in the graph.");
+	    VertexRecord<T> vertexRecord = adjacencyIndex[physicalIndex];
+
+	    // Remove all edges associated with the vertex in other vertices' neighborhood objects.
+	    List<T> neighbors = vertexRecord.adjacencySet.getNeighbors();
+	    for (T neighbor : neighbors) deleteEdge(id, neighbor);
+	    
+	    // Remove the vertex from lp-index, pl-index, and the adj-index
+	    logicalToPhysical.remove(logicalIndex);
+	    physicalToLogical[physicalIndex] = null;
+	    adjacencyIndex[physicalIndex] = null;
+
+	    // Decrement the vertex count
+	    vertexCount--;
+		
 		assert wellFormed() : "invariant failed at end of deleteVertex."; 
 	}
 
@@ -207,10 +276,53 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	 */
 	public boolean findEdge(T srcId, T destId) {
 		if (srcId == null) throw new IllegalArgumentException("@findEdge, the parameter, srcId, may not be null.");
-		/*...*/ 
-		return true;
+	    assert wellFormed() : "invariant failed at start of findEdge";
+
+	    // Check if the source vertex exists
+	    Integer srcPhysicalId = logicalToPhysical.get(srcId.hashCode());
+	    if (srcPhysicalId == null) return false; // Source vertex does not exist
+	    
+	    // Retrieve the source vertex's record
+	    VertexRecord<T> srcRecord = adjacencyIndex[srcPhysicalId];
+
+	    // Check if the destination vertex exists in the source's neighborhood
+	    boolean edgeExists = srcRecord.adjacencySet.getNeighbors().contains(destId);
+
+	    assert wellFormed() : "invariant failed at end of findEdge";
+
+	    return edgeExists;
 	}
 
+	/**
+	 * Processes all neighbors of a given vertex using the provided (?) action.
+	 * TODO [I'm not clear what the function of this method is intended to be.
+	 *       I've added it with a Consumer to be sort of generic. Check Per Fuchs
+	 *       implementation for more details. -Dustin]
+	 *
+	 * @param vertexId The ID of the vertex whose neighbors are to be scanned.
+	 * @param action The action to perform on each neighbor.
+	 * @throws IllegalArgumentException if the vertex does not exist.
+	 */
+	public void scanNeighbors(T vertexId, Consumer<T> action) {
+	    if (vertexId == null) throw new IllegalArgumentException("vertexId cannot be null.");
+	    assert wellFormed() : "invariant failed at start of scanNeighbors";
+	    
+	    // Retrieve the physical ID for the vertex
+	    Integer physicalId = logicalToPhysical.get(vertexId.hashCode());
+	    if (physicalId == null) throw new IllegalArgumentException("Vertex does not exist: " + vertexId);
+	    
+	    // Retrieve the adjacency set
+	    VertexRecord<T> vertexRecord = adjacencyIndex[physicalId];
+
+	    // Process each neighbor
+	    for (T neighbor : vertexRecord.adjacencySet.getNeighbors()) {
+	        action.accept(neighbor);
+	    }
+	    
+	    assert wellFormed() : "invariant failed at end of scanNeighbors";
+	}
+
+	
 	/**
 	 * Finds the intersection of neighbors between two vertices.
 	 *
@@ -232,8 +344,8 @@ public class SortledtonGraph<T extends Comparable<T>> {
      * @param v The logical ID of the vertex.
      * @return The physical ID of the vertex, or null if the vertex is not present.
      */
-	public Neighborhood<T> physicalId(int v) {
-		return logicalToPhysical.get(v);
+	public Integer physicalId(int logicalID) {
+		return logicalToPhysical.get(logicalID);
 	}
 	
 	/**
@@ -246,12 +358,45 @@ public class SortledtonGraph<T extends Comparable<T>> {
      * @return The logical ID of the vertex, or null if the vertex is not present.
      */
 	public int logicalId(int v) {
-		return index[v].getLogicalId();
+		return adjacencyIndex[v].getLogicalId();
 	}
 	
-	 
-    
-    
+	/**
+	 * Change the current capacity of the pl-index and adjacency index, if needed.
+	 *
+	 * @param minimumCapacity
+	 *   the new capacity for these fields
+	 * @postcondition
+	 *   The capacities have been changed to at least minimumCapacity.
+	 *   If the capacity was already at or greater than minimumCapacity,
+	 *   then the capacity is left unchanged.
+	 *   If the capacity is changed, it must be at least twice as big as before.
+	 * @exception OutOfMemoryError
+	 *   Indicates insufficient memory for: new array of minimumCapacity elements.
+	 **/
+	private void ensureCapacity(int minimumCapacity) {
+	    if (adjacencyIndex.length < minimumCapacity) {
+	        // Determine the new length (at least twice as big as before)
+	        int newLength = adjacencyIndex.length * 2;
+	        if (minimumCapacity > newLength) {
+	            newLength = minimumCapacity;
+	        }
+
+	        // Resize the adjacencyIndex array
+	        @SuppressWarnings("unchecked")
+	        VertexRecord<T>[] newAdjacencyIndex = (VertexRecord<T>[]) new VertexRecord[newLength];
+	        System.arraycopy(adjacencyIndex, 0, newAdjacencyIndex, 0, adjacencyIndex.length);
+	        adjacencyIndex = newAdjacencyIndex;
+
+	        // Resize the physicalToLogical array
+	        Integer[] newPhysicalToLogical = new Integer[newLength];
+	        System.arraycopy(physicalToLogical, 0, newPhysicalToLogical, 0, physicalToLogical.length);
+	        physicalToLogical = newPhysicalToLogical;
+	    }
+	}
+
+	
+	
     public static class Spy {
         /**
          * Return the sink for invariant error messages.
@@ -276,21 +421,34 @@ public class SortledtonGraph<T extends Comparable<T>> {
          * @param index the index array.
          * @return a new instance of a SortledtonGraph with the given data structure.
          */
-        public static <U extends Comparable<U>> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Neighborhood<U>> logicalToPhysical, VertexRecord<U>[] index) {
+        public static <U extends Comparable<U>> SortledtonGraph<U> newInstance(int vertexCount, Map<Integer, Integer> logicalToPhysical, VertexRecord<U>[] adjacencyIndex) {
             SortledtonGraph<U> result = new SortledtonGraph<>();
             result.vertexCount = vertexCount;
-            result.logicalToPhysical = new HashMap<Integer, Neighborhood<U>>(logicalToPhysical);
+            result.logicalToPhysical = new HashMap<Integer, Integer>(logicalToPhysical);
 			
             // Clone the index array and assign it to the result.
 			
 			@SuppressWarnings("unchecked") // We know that it's safe to cast as VertexRecord<Integer>[] here because we're constructing the array directly
-			VertexRecord<U>[] newIndex = (VertexRecord<U>[]) Array.newInstance(VertexRecord.class, index.length);
-			
-			result.index = newIndex;
-            for (int i = 0; i < index.length; i++) {
-				// TODO: Should this be constructing NEW instances, rather than assigning existing ones?
-                result.index[i] = index[i];
-            }
+			VertexRecord<U>[] newIndex = (VertexRecord<U>[]) Array.newInstance(VertexRecord.class, adjacencyIndex.length);
+
+			for (int i = 0; i < adjacencyIndex.length; i++) {
+				
+				if (adjacencyIndex[i] != null) {
+					// TODO: Should this be constructing NEW instances, rather than assigning existing ones?
+					result.adjacencyIndex[i] = adjacencyIndex[i];
+				}
+			}
+
+			result.adjacencyIndex = newIndex;
+
+			Integer[] newPhysicalToLogical = new Integer[newIndex.length];
+		    for (Map.Entry<Integer, Integer> entry : logicalToPhysical.entrySet()) {
+		        int logicalId = entry.getKey();
+		        int physicalIndex = entry.getValue();
+		        newPhysicalToLogical[physicalIndex] = logicalId;
+		    }
+		    result.physicalToLogical = newPhysicalToLogical;
+
             return result;
         }
 

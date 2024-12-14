@@ -2,6 +2,7 @@ import junit.framework.TestCase;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.Map;
 
 import edu.uwm.cs351.Neighborhood;
 import edu.uwm.cs351.SortledtonGraph;
@@ -19,10 +20,12 @@ public class TestInternals extends TestCase {
 
     // Test method for creating a SortledtonGraph instance using Spy
     public void testSortledtonGraphInstance() {
-        @SuppressWarnings("unchecked") // We know that it's safe to cast as VertexRecord<Integer>[] here because we're constructing the array directly
+        Map<Integer, Integer> logicalToPhysical = new HashMap<>();
+    	
+    	@SuppressWarnings("unchecked") // We know that it's safe to cast as VertexRecord<Integer>[] here because we're constructing the array directly
         VertexRecord<Integer>[] index = (VertexRecord<Integer>[]) Array.newInstance(VertexRecord.class, 0);
         
-        SortledtonGraph<Integer> instance = Spy.newInstance(0, new HashMap<Integer, Neighborhood<Integer>>(), index);
+        SortledtonGraph<Integer> instance = Spy.newInstance(0, logicalToPhysical, index);
         boolean isWellFormed = Spy.wellFormed(instance);
         assertTrue(isWellFormed);
     }
