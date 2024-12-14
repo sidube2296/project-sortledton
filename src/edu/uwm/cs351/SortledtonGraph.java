@@ -264,6 +264,7 @@ public class SortledtonGraph<T extends Comparable<T>> {
 
 	    // Remove all edges associated with the vertex in other vertices' neighborhood objects.
 	    List<T> neighbors = vertexRecord.adjacencySet.getNeighbors();
+	    // TODO this was a simple way to implement this, but does this assume an undirected graph? maybe we need a check here to improve efficiency
 	    for (T neighbor : neighbors) deleteEdge(id, neighbor);		// Note: potential PowerofTwo conversion handled by deleteEdge
 	    
 	    // Remove the vertex from lp-index, pl-index, and the adj-index
@@ -463,8 +464,6 @@ public class SortledtonGraph<T extends Comparable<T>> {
 	    vertexRecord.adjacencySet = newNeighborhood;
 	}
 
-	
-	
 	
 	
     public static class Spy {
