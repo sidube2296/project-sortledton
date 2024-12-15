@@ -58,25 +58,65 @@ public class TestVertexRecord extends TestCase {
 
     // ----- Tests of Constructors ----- //
     
+    // Constructor without arguments
     public void test100Constructor() {
+        VertexRecord.Spy spy = new VertexRecord.Spy();
+        VertexRecord<Integer> instance = new VertexRecord<Integer>();
         
+        assertTrue( spy.wellFormed(instance) );
+        assertEquals( instance.adjacencySetSize, 0 );
+        assertEquals( instance.adjacencySet.getClass().getSimpleName(), "PowerofTwo" );
+    }
+    
+    // Constructor with arguments
+    public void test101Constructor() {
+        VertexRecord.Spy spy = new VertexRecord.Spy();
+        VertexRecord<Integer> instance = new VertexRecord<Integer>(1234, mockAdjacencySet);
+        
+        assertTrue( spy.wellFormed(instance) );
+        assertEquals( instance.logicalId, 1234 );
+        assertEquals( instance.adjacencySet, mockAdjacencySet );
+        assertEquals( instance.adjacencySetSize, 0 );
     }
     
     // ----- Tests of getAdjacencySetSize ----- //
     
     public void test200GetAdjacencySetSize() {
-        // 
+        VertexRecord.Spy spy = new VertexRecord.Spy();
+        
+        Neighborhood<Integer> mockSkiplist = new UnrolledSkipList<Integer>();
+        mockSkiplist.addNeighbor(1111);
+        mockSkiplist.addNeighbor(1112);
+        
+        VertexRecord<Integer> instance = spy.newInstance(mockSkiplist, 1110, 2);
+        
+        assertTrue( spy.wellFormed(instance) );
+        assertEquals( instance.getAdjacencySetSize(), 2 );
     }
     
     // ----- Tests of getLogicalId ----- //
     
     public void test300GetLogicalId() {
-        // 
+        VertexRecord.Spy spy = new VertexRecord.Spy();
+        
+        VertexRecord<Integer> instance = spy.newInstance(mockAdjacencySet, 1110, 0);
+        
+        assertTrue( spy.wellFormed(instance) );
+        assertEquals( instance.getLogicalId(), 1110 );
     }
     
     // ----- Tests of setLogicalId ----- //
     
     public void test400SetLogicalId() {
-        // 
+        VertexRecord.Spy spy = new VertexRecord.Spy();
+        
+        VertexRecord<Integer> instance = spy.newInstance(mockAdjacencySet, 1110, 0);
+        
+        assertTrue( spy.wellFormed(instance) );
+        assertEquals( instance.getLogicalId(), 1110 );
+        
+        instance.setLogicalId( 2222 );
+        
+        assertEquals( instance.getLogicalId(), 2222 );
     }
 }
