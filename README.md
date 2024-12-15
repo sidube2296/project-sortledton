@@ -8,7 +8,7 @@ Java Sortledton
 <ul>
 <li>Siddhi Vilas Dube,siddhi2218, svdube@uwm.edu,</li>
 <li>Abdulla Fazil, @abdullafazil, lnu28@uwm.edu</li>
-<li>Jesse Tessmer, ,</li>
+<li>Jesse Tessmer, @jtessmer, jtessmer@uwm.edu</li>
 <li>Dustin Underwood, @moleodonuts, underw33@uwm.edu</li>
 <li>Sri Moulika Yetukuri, @moulika006, yetukuri@uwm.edu</li>
 </ul>

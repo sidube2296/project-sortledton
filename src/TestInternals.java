@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.uwm.cs351.Neighborhood;
 import edu.uwm.cs351.SortledtonGraph;
 import edu.uwm.cs351.SortledtonGraph.Spy;
 import edu.uwm.cs351.VertexRecord;
