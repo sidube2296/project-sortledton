@@ -104,3 +104,16 @@ As of now, we have completed the design phase and identified the core components
 - PowerofTwo Tests: Added tests for duplicate neighbors, removing neighbors, intersections (empty, partial, full overlap), and sorted order maintenance.
 - SortledtonGraph Tests: Enhanced tests for well-formedness, vertex/edge operations, exception handling (duplicates, non-existent elements), and graph consistency.
 Improved assertions, exception validation, and edge case handling across all tests.
+
+#### 15/December/2024
+- SortledtonGraph - Updated fields to align better with research into the literature on similar dynamic graphs. Compelted the build out of all methods. Updates to invariant to adhere to other changes. passes all test cases.
+- TestSortledtonGraph - added tests to cover the new methods
+- TestEfficiency - created and completed
+- TestCapacityGrowth - added due to the large starting size of the vertex index suggested by the Sortledton authors, this test takes a long time (around 30 minutes) to complete w/out forcing a change to the starting size. As such, it is provided as a stand-alone test file to ease running the main SortledtonGraph test cases
+- VertexRecord - replaced "VertexEntry" to align with authors' nomenclature. Added Spy
+- TestVertexRecord - created and populated with appropriate tests
+- Neighborhood - javadoc improvements. changes to method access modifiers
+- PowerofTwo - added invariant checks. minor javadoc improvements
+- TestPowerofTwo - added tests, including invariant checks
+- UnrolledSkipList - bug fixes associated with new test cases
+- TestUnrolledSKipList - added test for code coverage
