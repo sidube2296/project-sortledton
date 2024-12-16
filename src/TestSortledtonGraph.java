@@ -305,17 +305,24 @@ public class TestSortledtonGraph extends TestCase {
 		}
 	}
 
-	public void testDeleteEdgeTwice() {
-		graph.insertEdge(1, 2);
-		try {
-			graph.deleteEdge(1, 2);
-			assertFalse("Edge (1,2) should not exist now", graph.findEdge(1, 2));
-			graph.deleteEdge(1, 2); 
-			assertFalse("Edge (1,2) should still not exist", graph.findEdge(1, 2));
-		} catch (Exception e) {
-			fail("Exception in testDeleteEdgeTwice: " + e);
-		}
-	}
+    public void testDeleteEdgeTwice() {
+        graph.insertEdge(1, 2);
+        try {
+            graph.deleteEdge(1, 2);
+            assertFalse("Edge (1,2) should not exist now", graph.findEdge(1, 2));
+        } catch (Exception e) {
+            fail("Unexpected exception for first deleteEdge(1,2): " + e);
+        }
+
+        try {
+            graph.deleteEdge(1, 2); 
+            fail("Expected IllegalArgumentException for second deleteEdge(1,2) attempt.");
+        } catch (IllegalArgumentException e) {
+            // expected
+        } catch (Exception e) {
+            fail("Wrong exception type for second deleteEdge(1,2): " + e);
+        }
+    }
 
 	public void testLargeVertexInsert() {
 		int N = 200;
