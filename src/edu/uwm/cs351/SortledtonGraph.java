@@ -215,52 +215,62 @@ public class SortledtonGraph<T extends Comparable<T>> {
      * @throws IllegalArgumentException if either ID is null or if one of the vertices does not exist.
      */
     public void deleteEdge(T srcId, T destId) { 
-        if (srcId == null || destId == null) {
-            throw new IllegalArgumentException("@deleteEdge, the parameters, srcID and destID may not be null.");
-        }
+    	if (srcId == null || destId == null) {
+    		throw new IllegalArgumentException("@deleteEdge, the parameters, srcID and destID may not be null.");
+    	}
 
-        assert wellFormed() : "Invariant failed at start of deleteEdge.";
+    	assert wellFormed() : "Invariant failed at start of deleteEdge.";
 
-        // Ensure both vertices exist
-        int srcLogicalId = srcId.hashCode();
-        int destLogicalId = destId.hashCode();
-        Integer srcPhysicalIdObj = logicalToPhysical.get(srcLogicalId);
-        Integer destPhysicalIdObj = logicalToPhysical.get(destLogicalId);
+    	// Ensure both vertices exist
+    	int srcLogicalId = srcId.hashCode();
+    	int destLogicalId = destId.hashCode();
+    	Integer srcPhysicalIdObj = logicalToPhysical.get(srcLogicalId);
+    	Integer destPhysicalIdObj = logicalToPhysical.get(destLogicalId);
 
-        if (srcPhysicalIdObj == null || destPhysicalIdObj == null) {
-            throw new IllegalArgumentException("One or both vertices do not exist in the current state.");
-        }
+    	if (srcPhysicalIdObj == null || destPhysicalIdObj == null) {
+    		throw new IllegalArgumentException("One or both vertices do not exist in the current state.");
+    	}
 
-        int srcPhysicalId = srcPhysicalIdObj;
-        int destPhysicalId = destPhysicalIdObj;
+    	int srcPhysicalId = srcPhysicalIdObj;
+    	int destPhysicalId = destPhysicalIdObj;
 
-        // Retrieve the vertex records
-        VertexRecord<T> srcRecord = adjacencyIndex[srcPhysicalId];
-        VertexRecord<T> destRecord = adjacencyIndex[destPhysicalId];
+    	// Retrieve the vertex records
+    	VertexRecord<T> srcRecord = adjacencyIndex[srcPhysicalId];
+    	VertexRecord<T> destRecord = adjacencyIndex[destPhysicalId];
 
-        // Remove the destination vertex from the source vertex's neighborhood
-        Neighborhood<T> srcNeighborhood = srcRecord.adjacencySet;
-        if (srcNeighborhood.contains(destId)) { // Efficient check
-            srcNeighborhood.removeNeighbor(destId);
-            srcRecord.adjacencySetSize--;
-        }
+    	Neighborhood<T> srcNeighborhood = srcRecord.adjacencySet;
+    	Neighborhood<T> destNeighborhood = destRecord.adjacencySet;
 
-        // Remove the source vertex from the destination vertex's neighborhood
-        Neighborhood<T> destNeighborhood = destRecord.adjacencySet;
-        if (destNeighborhood.contains(srcId)) { // Efficient check
-            destNeighborhood.removeNeighbor(srcId);
-            destRecord.adjacencySetSize--;
-        }
+    	// Check if the edge actually exists in either neighborhood
+    	boolean srcHasDest = srcNeighborhood.contains(destId);
+    	boolean destHasSrc = destNeighborhood.contains(srcId);
 
-        // Check for conversion to PowerOfTwo
-        if (srcRecord.adjacencySetSize < BLOCK_SIZE) {
-            convertToPowerofTwo(srcRecord);
-        }
-        if (destRecord.adjacencySetSize < BLOCK_SIZE) {
-            convertToPowerofTwo(destRecord);
-        }
+    	if (!srcHasDest && !destHasSrc) {
+    		// Edge doesn't exist in either direction
+    		throw new IllegalArgumentException("Attempted to delete a non-existent edge between " + srcId + " and " + destId);
+    	}
 
-        assert wellFormed() : "Invariant failed at end of deleteEdge.";
+    	// Remove from source's neighborhood if present
+    	if (srcHasDest) {
+    		srcNeighborhood.removeNeighbor(destId);
+    		srcRecord.adjacencySetSize--;
+    	}
+
+    	// Remove from destination's neighborhood if present
+    	if (destHasSrc) {
+    		destNeighborhood.removeNeighbor(srcId);
+    		destRecord.adjacencySetSize--;
+    	}
+
+    	// Check for conversion to PowerOfTwo
+    	if (srcRecord.adjacencySetSize < BLOCK_SIZE) {
+    		convertToPowerofTwo(srcRecord);
+    	}
+    	if (destRecord.adjacencySetSize < BLOCK_SIZE) {
+    		convertToPowerofTwo(destRecord);
+    	}
+
+    	assert wellFormed() : "Invariant failed at end of deleteEdge.";
     }
 
     /**
