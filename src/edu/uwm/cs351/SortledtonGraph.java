@@ -250,17 +250,26 @@ public class SortledtonGraph<T extends Comparable<T>> {
     		throw new IllegalArgumentException("Attempted to delete a non-existent edge between " + srcId + " and " + destId);
     	}
 
-    	// Remove from source's neighborhood if present
-    	if (srcHasDest) {
-    		srcNeighborhood.removeNeighbor(destId);
-    		srcRecord.adjacencySetSize--;
-    	}
+    	// Handle the self-loop case
+        if (srcId.equals(destId)) {
+            // It's a self-loop, remove and decrement only once
+            if (srcHasDest) {
+                srcNeighborhood.removeNeighbor(destId);
+                srcRecord.adjacencySetSize--;
+            }
+        } else {
+            // Remove from source's neighborhood if present
+            if (srcHasDest) {
+                srcNeighborhood.removeNeighbor(destId);
+                srcRecord.adjacencySetSize--;
+            }
 
-    	// Remove from destination's neighborhood if present
-    	if (destHasSrc) {
-    		destNeighborhood.removeNeighbor(srcId);
-    		destRecord.adjacencySetSize--;
-    	}
+            // Remove from destination's neighborhood if present
+            if (destHasSrc) {
+                destNeighborhood.removeNeighbor(srcId);
+                destRecord.adjacencySetSize--;
+            }
+        }
 
     	// Check for conversion to PowerOfTwo
     	if (srcRecord.adjacencySetSize < BLOCK_SIZE) {
