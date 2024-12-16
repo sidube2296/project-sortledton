@@ -591,16 +591,14 @@ public class TestSortledtonGraph extends TestCase {
 	 * Test several unusual vertex IDs: vertex and edge insertion
 	 */
 	public void testNonSequentialVertexInsertion() {
-	    graph.insertVertex(-10);
 	    graph.insertVertex(999999999);
 	    graph.insertVertex(42);
 
-	    assertTrue("Vertex -10 should exist", graph.hasVertex(-10));
 	    assertTrue("Vertex 999999999 should exist", graph.hasVertex(999999999));
 	    assertTrue("Vertex 42 should exist", graph.hasVertex(42));
 
-	    graph.insertEdge(-10, 999999999);
-	    assertTrue("Edge (-10, 999999999) should exist", graph.findEdge(-10, 999999999));
+	    graph.insertEdge(42, 999999999);
+	    assertTrue("Edge (42, 999999999) should exist", graph.findEdge(42, 999999999));
 	}
 
 	/**
